@@ -16,21 +16,11 @@ class Machine {
 public:
     Machine();
 
-    Memory& memory() {
-        return memory_;
-    }
-    Ports& ports() {
-        return ports_;
-    }
-    Clock& clock() {
-        return clock_;
-    }
-    Traps& traps() {
-        return traps_;
-    }
-    Cpu& cpu() {
-        return cpu_;
-    }
+    Memory& memory();
+    Ports& ports();
+    Clock& clock();
+    Traps& traps();
+    Cpu& cpu();
 
 private:
     Memory memory_;

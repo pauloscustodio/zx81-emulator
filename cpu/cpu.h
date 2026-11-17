@@ -9,7 +9,11 @@
 #include "zx81.h"
 #include <string>
 
-class Machine;
+class Memory;
+class Ports;
+struct Clock;
+class Traps;
+struct _z80_cpu_context; // aka Z80EX_CONTEXT;
 
 struct Registers {
     word_t af = 0xffff, bc = 0xffff, de = 0xffff, hl = 0xffff;
@@ -25,7 +29,7 @@ struct Registers {
 
 class Cpu {
 public:
-    Cpu(Machine& machine);
+    Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps);
     virtual ~Cpu();
     Cpu(const Cpu&) = delete;
     Cpu& operator=(const Cpu&) = delete;
@@ -38,11 +42,18 @@ public:
     Registers get_registers() const;
     void set_registers(const Registers& regs);
 
-    Machine& machine() {
-        return machine_;
-    }
-
 private:
-    Machine& machine_;
+    Memory& memory_;
+    Ports& ports_;
+    Clock& clock_;
+    Traps& traps_;
     void* z80ctx_;
+
+    static byte_t mread(struct _z80_cpu_context* cpu, word_t addr, int m1_state,
+                        void* user_data);
+    static void mwrite(struct _z80_cpu_context* cpu, word_t addr, byte_t value,
+                       void* user_data);
+    static byte_t pread(struct _z80_cpu_context* cpu, word_t port, void* user_data);
+    static void pwrite(struct _z80_cpu_context* cpu, word_t port, byte_t value,
+                       void* user_data);
 };

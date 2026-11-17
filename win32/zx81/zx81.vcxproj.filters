@@ -81,9 +81,4 @@
       <Filter>Source Files\machine</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\machine\memory.h.bak">
-      <Filter>Header Files\machine</Filter>
-    </None>
-  </ItemGroup>
 </Project>

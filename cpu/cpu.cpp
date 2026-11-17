@@ -45,45 +45,12 @@ std::string Registers::to_string() const {
     return oss.str();
 }
 
-/*read byte from memory <addr> -- called when RD & MREQ goes active.
-m1_state will be 1 if M1 signal is active*/
-static byte_t z80ex_mread(Z80EX_CONTEXT* cpu, word_t addr, int m1_state,
-                          void* user_data) {
-    Cpu* self = static_cast<Cpu*>(user_data);
-    if (m1_state) {
-        return self->machine().memory().fetch8(addr);
-    }
-    else {
-        return self->machine().memory().read8(addr);
-    }
-}
-
-/*write <value> to memory <addr> -- called when WR & MREQ goes active*/
-static void z80ex_mwrite(Z80EX_CONTEXT* cpu, word_t addr, byte_t value,
-                         void* user_data) {
-    Cpu* self = static_cast<Cpu*>(user_data);
-    self->machine().memory().write8(addr, value);
-}
-
-/*read byte from <port> -- called when RD & IORQ goes active*/
-static byte_t z80ex_pread(Z80EX_CONTEXT* cpu, word_t port, void* user_data) {
-    Cpu* self = static_cast<Cpu*>(user_data);
-    return self->machine().ports().read8(port);
-}
-
-/*write <value> to <port> -- called when WR & IORQ goes active*/
-static void z80ex_pwrite(Z80EX_CONTEXT* cpu, word_t port, byte_t value,
-                         void* user_data) {
-    Cpu* self = static_cast<Cpu*>(user_data);
-    self->machine().ports().write8(port, value);
-}
-
-Cpu::Cpu(Machine& machine)
-    : machine_(machine) {
-    z80ctx_ = z80ex_create(z80ex_mread, this,
-                           z80ex_mwrite, this,
-                           z80ex_pread, this,
-                           z80ex_pwrite, this,
+Cpu::Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps)
+    : memory_(memory), ports_(ports), clock_(clock), traps_(traps) {
+    z80ctx_ = z80ex_create(mread, this,
+                           mwrite, this,
+                           pread, this,
+                           pwrite, this,
                            nullptr, nullptr);
     if (!z80ctx_) {
         fatal_error("Failed to create Z80EX context");
@@ -101,26 +68,25 @@ void Cpu::reset() {
 void Cpu::step() {
     // handle traps before executing the next instruction
     Registers regs = get_registers();
-    if (Traps::TrapHandler* trap = machine_.traps().find(regs.pc)) {
-        (*trap)(machine_);
+    if (Traps::TrapHandler* trap = traps_.find(regs.pc)) {
+        (*trap)(*this);
     }
 
     // then execute the next instruction
     int tstates = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx_));
-    machine_.clock().tstates += tstates;
+    clock_.tstates += tstates;
 }
 
 void Cpu::run_cycles(int cycles) {
-    auto& clock = machine_.clock();
-    uint64_t start_tstates = clock.tstates;
-    while (clock.tstates - start_tstates < static_cast<uint64_t>(cycles)) {
+    uint64_t start_tstates = clock_.tstates;
+    while (clock_.tstates - start_tstates < static_cast<uint64_t>(cycles)) {
         step();
     }
 }
 
 void Cpu::exec_ret() {
     auto regs = get_registers();
-    regs.pc = machine_.memory().read16(regs.sp);
+    regs.pc = memory_.read16(regs.sp);
     regs.sp += 2;
     set_registers(regs);
 }
@@ -171,3 +137,30 @@ void Cpu::set_registers(const Registers& regs) {
     z80ex_set_reg(cpu, regIFF2, regs.iff2);
 }
 
+byte_t Cpu::mread(Z80EX_CONTEXT* cpu, word_t addr, int m1_state,
+                  void* user_data) {
+    Cpu* self = static_cast<Cpu*>(user_data);
+    if (m1_state) {
+        return self->memory_.fetch8(addr);
+    }
+    else {
+        return self->memory_.read8(addr);
+    }
+}
+
+void Cpu::mwrite(Z80EX_CONTEXT* cpu, word_t addr, byte_t value,
+                 void* user_data) {
+    Cpu* self = static_cast<Cpu*>(user_data);
+    self->memory_.write8(addr, value);
+}
+
+byte_t Cpu::pread(Z80EX_CONTEXT* cpu, word_t port, void* user_data) {
+    Cpu* self = static_cast<Cpu*>(user_data);
+    return self->ports_.read8(port);
+}
+
+void Cpu::pwrite(Z80EX_CONTEXT* cpu, word_t port, byte_t value,
+                 void* user_data) {
+    Cpu* self = static_cast<Cpu*>(user_data);
+    self->ports_.write8(port, value);
+}

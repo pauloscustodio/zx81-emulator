@@ -168,9 +168,6 @@
       <Project>{f147de3f-732f-4b98-8f5e-5b26c1ffea09}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\machine\memory.h.bak" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

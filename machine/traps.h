@@ -10,11 +10,13 @@
 #include <functional>
 #include <unordered_map>
 
+class Cpu;
+
 class Machine;
 
 class Traps {
 public:
-    using TrapHandler = std::function<void(Machine&)>;
+    using TrapHandler = std::function<void(Cpu&)>;
 
     Traps() = default; // TODO: install traps in constructor
     virtual ~Traps() = default;
