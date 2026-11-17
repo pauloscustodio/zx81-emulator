@@ -9,9 +9,7 @@
 #include "zx81.h"
 #include <string>
 
-class Memory;
-class Ports;
-struct Clock;
+class Machine;
 
 struct Registers
 {
@@ -28,7 +26,7 @@ struct Registers
 
 class Cpu {
 public:
-    Cpu(Memory &memory, Ports &ports, Clock &clock);
+    Cpu(Machine &machine);
     virtual ~Cpu();
     Cpu(const Cpu&) = delete;
     Cpu& operator=(const Cpu&) = delete;
@@ -36,17 +34,14 @@ public:
     void reset();
     void step();
     void run_cycles(int cycles);
+    void exec_ret();
 
     Registers get_registers() const;
     void set_registers(const Registers &regs);
 
-    Memory& memory() { return memory_; }
-    Ports& ports() { return ports_; }
-    Clock& clock() { return clock_; }
+    Machine& machine() { return machine_; }
 
 private:
-    Memory &memory_;
-    Ports &ports_;
-    Clock& clock_;
+    Machine &machine_;
     void* z80ctx_;
 };

@@ -1,0 +1,28 @@
+//-----------------------------------------------------------------------------
+// zx81-emulator
+// Copyright (C) Paulo Custodio, 2026
+// License: GPL v2
+//-----------------------------------------------------------------------------
+
+#pragma once
+
+#include "zx81.h"
+#include <functional>
+#include <unordered_map>
+
+class Machine;
+
+class Traps {
+public:
+    using TrapHandler = std::function<void(Machine&)>;
+
+    Traps() = default; // TODO: install traps in constructor
+    virtual ~Traps() = default;
+    Traps(const Traps&) = delete;
+    Traps& operator=(const Traps&) = delete;
+
+    TrapHandler* find(word_t addr);
+
+private:
+    std::unordered_map<word_t, TrapHandler> traps_;
+};

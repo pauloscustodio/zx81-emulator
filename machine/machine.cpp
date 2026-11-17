@@ -7,4 +7,4 @@
 #include "machine.h"
 
 Machine::Machine() 
-    : cpu_(memory_, ports_, clock_) {}
+    : cpu_(*this) {}
