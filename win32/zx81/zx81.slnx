@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="../z80ex/z80ex.vcxproj" Id="f147de3f-732f-4b98-8f5e-5b26c1ffea09" />
+  <Project Path="zx81.vcxproj" Id="f94e4d8e-126f-4b36-b8be-9856ac6b2125" />
+</Solution>
