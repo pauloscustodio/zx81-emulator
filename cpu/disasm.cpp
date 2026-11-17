@@ -26,19 +26,21 @@ DisInstruction Disassembler::disassemble(word_t addr) {
     instr.text = buffer;
 
     // format the instruction text: replace '#' with '$' for hex numbers, and convert to lowercase
-    instr.text = str_replace_all(instr.text, "#",
-                                 "$"); //replace '#' with '$' for hex numbers
+    instr.text = str_replace_all(instr.text, "#", "$");
     instr.text = str_tolower(instr.text);
 
     // add the hex representation of the instruction bytes to the output
-    instr.hex_data = fmt_hex(addr, 4, "") + ": ";
+    instr.hex_data = fmt_hex(addr, 4, "") + " ";
     for (int i = 0; i < size; ++i) {
         byte_t b = memory_.fetch8(addr + i);
         instr.hex_data += " " + fmt_hex(b, 2, "");
     }
-    instr.hex_data += std::string(std::max(0, (4 - size) * 3),
-                                  ' '); // pad to 4 bytes
-    instr.hex_data += "  "; // space before instruction text
+
+    // pad to 4 bytes
+    instr.hex_data += std::string(std::max(0, (4 - size) * 3), ' ');
+
+    // space before instruction text
+    instr.hex_data += "  ";
 
     return instr;
 }
