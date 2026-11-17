@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cpu\cpu.h" />
+    <ClInclude Include="..\..\cpu\disasm.h" />
     <ClInclude Include="..\..\machine\clock.h" />
     <ClInclude Include="..\..\machine\machine.h" />
     <ClInclude Include="..\..\machine\memory.h" />
@@ -155,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cpu\cpu.cpp" />
+    <ClCompile Include="..\..\cpu\disasm.cpp" />
     <ClCompile Include="..\..\machine\clock.cpp" />
     <ClCompile Include="..\..\machine\machine.cpp" />
     <ClCompile Include="..\..\machine\memory.cpp" />

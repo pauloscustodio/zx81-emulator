@@ -22,3 +22,6 @@
 
 std::string fmt_hex(int value, int digits = 2,
                     const std::string& prefix = "$");
+std::string str_tolower(std::string str);
+std::string str_replace_all(std::string str, const std::string& from,
+                            const std::string& to);

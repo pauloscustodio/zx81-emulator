@@ -5,6 +5,8 @@
 //-----------------------------------------------------------------------------
 
 #include "utils.h"
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <iomanip>
 #include <ios>
@@ -21,7 +23,24 @@ void fatal_error(const char* msg) {
 std::string fmt_hex(int value, int digits, const std::string& prefix) {
     std::ostringstream oss;
     oss << prefix << std::setw(digits) << std::setfill('0')
-        << std::hex << std::uppercase << value;
+        << std::hex << std::nouppercase << value;
     return oss.str();
+}
+
+std::string str_tolower(std::string str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](char c) {
+        return std::tolower(c);
+    });
+    return str;
+}
+
+std::string str_replace_all(std::string str, const std::string& from,
+                            const std::string& to) {
+    std::string::size_type n = 0;
+    while ((n = str.find(from, n)) != std::string::npos) {
+        str.replace(n, from.size(), to);
+        n += to.size();
+    }
+    return str;
 }
 

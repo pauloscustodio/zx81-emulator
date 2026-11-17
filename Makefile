@@ -125,8 +125,9 @@ tidy:
 # clean
 #------------------------------------------------------------------------------
 clean::
-	$(RM) $(wildcard $(PROJ)$(EXESUFFIX) $(OBJS) $(DEPENDS) \
-					*.o *.d *.orig *.bak $(PROJ).txt $(PROJ).dump)
+	$(RM) $(PROJ)$(EXESUFFIX) $(OBJS) $(DEPENDS) $(PROJ).txt $(PROJ).dump
+	find . \( -name '*.o' -o -name '*.d' -o -name '*.orig' -o -name '*.bak' \) \
+			-exec $(RM) {} +
 	$(RM) -r $(BUILD_DIR)
 
 #------------------------------------------------------------------------------

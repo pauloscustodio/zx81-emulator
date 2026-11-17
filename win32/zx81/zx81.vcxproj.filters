@@ -54,6 +54,9 @@
     <ClInclude Include="..\..\machine\rom.h">
       <Filter>Header Files\machine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\cpu\disasm.h">
+      <Filter>Header Files\cpu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -79,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="..\..\machine\traps.cpp">
       <Filter>Source Files\machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cpu\disasm.cpp">
+      <Filter>Source Files\cpu</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
