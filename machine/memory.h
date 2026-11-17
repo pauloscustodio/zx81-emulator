@@ -11,6 +11,9 @@
 class Memory
 {
 public:
+	Memory();
+	virtual ~Memory() = default;
+	
     byte_t fetch8(word_t addr) const;
     byte_t read8(word_t addr) const;
     word_t read16(word_t addr) const;
@@ -20,4 +23,5 @@ public:
 
 private:
     byte_t mem_[MEM_SIZE] = { 0 };
+	word_t rom_size_ = 0;
 };

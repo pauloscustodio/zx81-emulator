@@ -98,6 +98,12 @@ $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIRS)
 $(BUILD_DIRS):
 	$(PERL) -MExtUtils::Command -e mkpath -- $@
 
+$(BUILD_DIR)/$(PROJ).o: machine/rom.h
+
+machine/rom.h: tools/zx81_edition3.rom tools/file2c.pl Makefile
+	perl tools/file2c.pl $< rom > $@
+	dos2unix $@
+
 #------------------------------------------------------------------------------
 # test
 #------------------------------------------------------------------------------
