@@ -49,14 +49,14 @@ Z80EXFLAGS = -D$(ENDIANNESS) \
 			 -DZ80EX_RELEASE_TYPE=$(RELEASE_TYPE) \
 			 -DZ80EX_OPSTEP_FAST_AND_ROUGH
 
-FLAGS	= -std=c++20 -O3 -MMD -Wall -Werror \
+FLAGS	= -O3 -MMD -Wall -Werror \
 		  $(Z80EXFLAGS) \
 		  -I. \
 		  -Icpu \
 		  -Icpu/z80ex/include \
 		  -Imachine
-CFLAGS	= $(FLAGS)
-CXXFLAGS= $(FLAGS)
+CFLAGS	= -std=c11 $(FLAGS)
+CXXFLAGS= -std=c++20 $(FLAGS)
 LDFLAGS = 
 
 #------------------------------------------------------------------------------
