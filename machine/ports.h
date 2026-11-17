@@ -8,8 +8,7 @@
 
 #include "zx81.h"
 
-class Ports
-{
+class Ports {
 public:
     byte_t read8(word_t addr) const;
     void write8(word_t addr, byte_t value);

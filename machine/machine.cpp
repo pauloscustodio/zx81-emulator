@@ -6,5 +6,5 @@
 
 #include "machine.h"
 
-Machine::Machine() 
+Machine::Machine()
     : cpu_(*this) {}

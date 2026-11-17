@@ -10,7 +10,7 @@
 
 Machine mach;
 
-int main() {    
+int main() {
     mach.cpu().reset();
     Registers regs = mach.cpu().get_registers();
     std::cout << "Initial CPU state:\n" << regs.to_string() << std::endl;

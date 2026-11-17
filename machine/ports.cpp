@@ -6,13 +6,11 @@
 
 #include "ports.h"
 
-byte_t Ports::read8(word_t addr) const
-{
+byte_t Ports::read8(word_t addr) const {
     return 0;
 }
 
-void Ports::write8(word_t addr, byte_t value)
-{
+void Ports::write8(word_t addr, byte_t value) {
     (void)addr;
     (void)value;
 }

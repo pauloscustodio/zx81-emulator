@@ -116,11 +116,9 @@ test: $(PROJ)$(EXESUFFIX)
 tidy:
 	@[ -f $(TIDY_STAMP) ] || touch -t 197001010000 $(TIDY_STAMP)
 	find . \( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.re' \) \
-		-name z80ex -prune \
-		-newer $(TIDY_STAMP) -exec echo $(ASTYLE) {} +
+		-newer $(TIDY_STAMP) | grep -v z80ex | xargs $(ASTYLE)
 	find . \( -name '*.pl' -o -name '*.pm' -o -name '*.t' \) \
-		-name z80ex -prune \
-		-newer $(TIDY_STAMP) -exec echo $(PERLTIDY) {} +
+		-newer $(TIDY_STAMP) | grep -v z80ex | xargs $(PERLTIDY)
 	touch $(TIDY_STAMP)
 
 #------------------------------------------------------------------------------

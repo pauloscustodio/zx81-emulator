@@ -20,5 +20,5 @@
 
 [[noreturn]] void fatal_error(const char* msg);
 
-std::string fmt_hex(int value, int digits = 2, 
-    const std::string & prefix = "$");
+std::string fmt_hex(int value, int digits = 2,
+                    const std::string& prefix = "$");

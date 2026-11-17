@@ -12,10 +12,10 @@ my @bytes = map { ord } split //, $data;
 print "#include <cstdint>\n";
 print "static const uint8_t ", $array_name, "[", scalar(@bytes), "] = {\n";
 while (@bytes) {
-    print "    ";
+    print "   ";    # 3 spaces + 1 space below
     for ( 1 .. 8 ) {
         last unless @bytes;
-        printf "0x%02x, ", shift @bytes;
+        printf " 0x%02x,", shift @bytes;
     }
     print "\n";
 }
