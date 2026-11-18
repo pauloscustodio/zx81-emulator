@@ -77,7 +77,7 @@
       <PreprocessorDefinitions>WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,7 +96,7 @@
       <PreprocessorDefinitions>WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,7 +113,7 @@
       <PreprocessorDefinitions>WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,7 +132,7 @@
       <PreprocessorDefinitions>WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +145,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\cpu\cpu.h" />
     <ClInclude Include="..\..\cpu\disasm.h" />
+    <ClInclude Include="..\..\debugger\consts.h" />
+    <ClInclude Include="..\..\debugger\symbols.h" />
     <ClInclude Include="..\..\machine\clock.h" />
     <ClInclude Include="..\..\machine\machine.h" />
     <ClInclude Include="..\..\machine\memory.h" />
@@ -157,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\cpu\cpu.cpp" />
     <ClCompile Include="..\..\cpu\disasm.cpp" />
+    <ClCompile Include="..\..\debugger\symbols.cpp" />
     <ClCompile Include="..\..\machine\clock.cpp" />
     <ClCompile Include="..\..\machine\machine.cpp" />
     <ClCompile Include="..\..\machine\memory.cpp" />

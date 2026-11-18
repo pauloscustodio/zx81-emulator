@@ -7,7 +7,7 @@ TODO
   inspection and change of BASIC variables
 - define total RAM size
 - push BASIC text through the keyboard interface
-- test disassembler with all opcodes
 - add a line editing function
 - add command line options parsing
 - move submodules to ext directory
+- join the line editor in the event loop

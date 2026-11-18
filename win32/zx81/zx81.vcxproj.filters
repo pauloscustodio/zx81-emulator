@@ -25,6 +25,12 @@
     <Filter Include="Source Files\machine">
       <UniqueIdentifier>{b9042677-8ccb-4e2c-b26b-7c14e9e29992}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\debugger">
+      <UniqueIdentifier>{4a15429f-fbc0-4ae9-85d9-95ce998dd579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debugger">
+      <UniqueIdentifier>{5315ba7c-26d3-4e53-aff6-fc12b8ef9257}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\zx81.h">
@@ -57,6 +63,12 @@
     <ClInclude Include="..\..\cpu\disasm.h">
       <Filter>Header Files\cpu</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\debugger\consts.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\debugger\symbols.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -85,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\..\cpu\disasm.cpp">
       <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\debugger\symbols.cpp">
+      <Filter>Source Files\debugger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

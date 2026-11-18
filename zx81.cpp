@@ -15,25 +15,18 @@ static Disassembler disasm(mach.memory());
 static SymbolTable symtab;
 
 int main() {
-    /*
     mach.cpu().reset();
+
     Registers regs = mach.cpu().get_registers();
     std::cout << "Initial CPU state:\n" << regs.to_string() << std::endl;
 
     while (regs.pc != 0x04c1) {     // run until DISPLAY_6 (idle loop) is reached
-    auto instr = disasm.disassemble(regs.pc);
-    std::cout << instr.format(symtab) << std::endl;
+        auto instr = disasm.disassemble(regs.pc);
+        std::cout << instr.format(symtab) << std::endl;
 
-    mach.cpu().step();
-    regs = mach.cpu().get_registers();
+        mach.cpu().step();
+        regs = mach.cpu().get_registers();
+    }
 
     std::cout << "Final CPU state:\n" << regs.to_string() << std::endl;
-    */
-
-    word_t addr = 0;
-    while (addr < 0x1e00) {
-        auto instr = disasm.disassemble(addr);
-        std::cout << instr.format(symtab) << std::endl;
-        addr += instr.size;
-    }
 }
