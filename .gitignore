@@ -8,5 +8,4 @@ build/
 .tidy-stamp
 *.orig
 *.bin
-*.map
 *.o
