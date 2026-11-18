@@ -108,8 +108,8 @@ machine/rom.h: rom/zx81_edition3.rom tools/file2c.pl Makefile
 	dos2unix $@
 
 #------------------------------------------------------------------------------
-# init files that are stored in git
-# needs z88dk-z80asm and therefore is not run on the 'all' target
+# developer only initialization
+# depends on z88dk-z80asm
 #------------------------------------------------------------------------------
 init: debugger/consts.h
 	$(MAKE)
@@ -119,8 +119,10 @@ debugger/consts.h: rom/zx81_edition3.map tools/make_consts.pl Makefile
 	dos2unix $@
 
 rom/zx81_edition3.map: rom/zx81_edition3.asm Makefile
+ifeq ($(DEVELOPER),1)
 	z88dk-z80asm -b -m $<
 	diff rom/zx81_edition3.rom rom/zx81_edition3.bin
+endif
 
 #------------------------------------------------------------------------------
 # test
