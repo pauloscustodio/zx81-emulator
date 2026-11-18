@@ -9,6 +9,8 @@
 #include "utils.h"
 #include "z80ex_dasm.h"
 #include <algorithm>
+#include <algorithm>
+#include <regex>
 #include <string>
 
 Disassembler::Disassembler(const Memory& memory)
@@ -48,4 +50,111 @@ DisInstruction Disassembler::disassemble(word_t addr) {
 byte_t Disassembler::read_byte(word_t addr, void* user_data) {
     Disassembler* self = static_cast<Disassembler*>(user_data);
     return self->memory_.fetch8(addr);
+}
+
+static std::string replace_labels(const std::string& text,
+                                  const SymbolTable& symtab) {
+    // Match: $ followed by 4 hexadecimal digits
+    static const std::regex pattern(R"(\$([0-9a-f]{4}))", std::regex::icase);
+
+    std::string result;
+    std::sregex_iterator it(text.begin(), text.end(), pattern);
+    std::sregex_iterator end;
+
+    size_t last_pos = 0;
+    for (; it != end; ++it) {
+        const std::smatch& match = *it;
+
+        // Preserve text preceding the match
+        result.append(text, last_pos, match.position() - last_pos);
+
+        // Convert captured hexadecimal value to integer
+        int value = static_cast<int>(std::stoull(match[1].str(), nullptr, 16));
+
+        // Look up the symbol table
+        std::vector<const Symbol*> symbols = symtab.get(value);
+        if (!symbols.empty()) {
+            // Replace with the first symbol name
+            result += symbols.front()->name;
+        }
+        else {
+            // Leave original text unchanged
+            result += match.str();
+        }
+
+        last_pos = match.position() + match.length();
+    }
+
+    // Append remaining text
+    result.append(text, last_pos, std::string::npos);
+    return result;
+}
+
+static std::string replace_iy_references(const std::string& text,
+        const SymbolTable& symtab) {
+    // Match: iy+$ followed 2 hexadecimal digits
+    static const std::regex pattern(R"(iy\+\$([0-9a-f]{2}))", std::regex::icase);
+
+    std::string result;
+    std::sregex_iterator it(text.begin(), text.end(), pattern);
+    std::sregex_iterator end;
+
+    size_t last_pos = 0;
+    for (; it != end; ++it) {
+        const std::smatch& match = *it;
+
+        // Preserve text preceding the match
+        result.append(text, last_pos, match.position() - last_pos);
+
+        // Convert captured hexadecimal value to integer
+        int value = static_cast<int>(std::stoull(match[1].str(), nullptr, 16));
+
+        // special case for ERRNO, as there are two symbols with the same 0x4000 value
+        if (value == 0) {
+            result += "iy+ERRNO-IY0";
+        }
+        else {
+            // Look up the symbol table
+            std::vector<const Symbol*> symbols = symtab.get(ERRNO + value);
+            if (!symbols.empty()) {
+                // Replace with the first symbol name
+                result += "iy+" + symbols.front()->name + "-IY0";
+            }
+            else {
+                // Leave original text unchanged
+                result += match.str();
+            }
+        }
+
+        last_pos = match.position() + match.length();
+    }
+
+    // Append remaining text
+    result.append(text, last_pos, std::string::npos);
+    return result;
+}
+
+std::string DisInstruction::format(const SymbolTable& symtab) {
+    std::vector<const Symbol*> labels = symtab.get(addr);
+
+    // hex address and bytes
+    std::string result = hex_data;
+
+    // label if any
+    if (!labels.empty()) {
+        std::string label = labels.front()->name + ":";
+        int padding = LabelWidth - static_cast<int>(label.size());
+        label += std::string(std::max(0, padding), ' ');
+        result += label;
+    }
+    else {
+        result += std::string(LabelWidth, ' ');
+    }
+
+    // add opcode with numbers and (iy+xx) replaced by labels
+    std::string opcode = replace_labels(text, symtab);
+    opcode = replace_iy_references(opcode, symtab);
+    result += opcode;
+
+    return result;
 }

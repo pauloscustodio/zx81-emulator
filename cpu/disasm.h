@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "symbols.h"
 #include "zx81.h"
 #include <string>
 
@@ -16,6 +17,8 @@ struct DisInstruction {
     int size = 0;
     std::string text;
     std::string hex_data;
+
+    std::string format(const SymbolTable& symtab);
 };
 
 class Disassembler {

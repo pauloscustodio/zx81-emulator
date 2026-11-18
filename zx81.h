@@ -13,6 +13,10 @@ using word_t = uint16_t;
 
 static inline constexpr int MEM_SIZE = 0x10000;
 
+static inline constexpr int ERRNO = 0x4000;
+
+static inline constexpr int LabelWidth = 16;
+
 #if 0
 #include "z80ex.h"
 #include <cstdint>

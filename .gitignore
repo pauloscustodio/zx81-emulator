@@ -7,3 +7,6 @@ build/
 **/x64/
 .tidy-stamp
 *.orig
+*.bin
+*.map
+*.o

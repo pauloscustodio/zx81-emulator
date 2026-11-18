@@ -54,7 +54,8 @@ FLAGS	= -O3 -MMD -Wall -Werror \
 		  -I. \
 		  -Icpu \
 		  -Icpu/z80ex/include \
-		  -Imachine
+		  -Imachine \
+		  -Idebugger
 CFLAGS	= -std=c11 $(FLAGS)
 CXXFLAGS= -std=c++20 $(FLAGS)
 LDFLAGS = 
@@ -67,14 +68,16 @@ BUILD_DIR = build
 BUILD_DIRS=	$(BUILD_DIR) \
 			$(BUILD_DIR)/cpu \
 			$(BUILD_DIR)/cpu/z80ex \
-			$(BUILD_DIR)/machine
+			$(BUILD_DIR)/machine \
+			$(BUILD_DIR)/debugger
 			
 CSRCS	:= cpu/z80ex/z80ex.c \
 		   cpu/z80ex/z80ex_dasm.c
 
 CXXSRCS	:= $(wildcard *.cpp) \
 		   $(wildcard cpu/*.cpp) \
-		   $(wildcard machine/*.cpp)
+		   $(wildcard machine/*.cpp) \
+		   $(wildcard debugger/*.cpp)
 		   
 OBJS 	:= $(patsubst %.c,$(BUILD_DIR)/%.o,$(CSRCS)) \
 		   $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(CXXSRCS))
@@ -100,9 +103,24 @@ $(BUILD_DIRS):
 
 $(BUILD_DIR)/$(PROJ).o: machine/rom.h
 
-machine/rom.h: tools/zx81_edition3.rom tools/file2c.pl Makefile
+machine/rom.h: rom/zx81_edition3.rom tools/file2c.pl Makefile
 	perl tools/file2c.pl $< rom > $@
 	dos2unix $@
+
+#------------------------------------------------------------------------------
+# init files that are stored in git
+# needs z88dk-z80asm and therefore is not run on the 'all' target
+#------------------------------------------------------------------------------
+init: debugger/consts.h
+	$(MAKE)
+
+debugger/consts.h: rom/zx81_edition3.map tools/make_consts.pl Makefile
+	$(PERL) tools/make_consts.pl $< const_symbols > $@
+	dos2unix $@
+
+rom/zx81_edition3.map: rom/zx81_edition3.asm Makefile
+	z88dk-z80asm -b -m $<
+	diff rom/zx81_edition3.rom rom/zx81_edition3.bin
 
 #------------------------------------------------------------------------------
 # test
