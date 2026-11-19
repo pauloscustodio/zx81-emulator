@@ -1,5 +1,6 @@
 TODO
 ====
+- fix debug mode: hangs on quit in msys2
 - run a headless emulator
 - accept gdb-like commands
 - accept user symbols from assembled program
