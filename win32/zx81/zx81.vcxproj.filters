@@ -31,6 +31,12 @@
     <Filter Include="Source Files\debugger">
       <UniqueIdentifier>{5315ba7c-26d3-4e53-aff6-fc12b8ef9257}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{a2b658d2-d95d-468d-b780-cb11954911f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{83a91f72-5085-4def-bf6d-f2b0defa4010}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\zx81.h">
@@ -69,6 +75,12 @@
     <ClInclude Include="..\..\debugger\symbols.h">
       <Filter>Header Files\debugger</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\debugger\debugger.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\screen.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -100,6 +112,12 @@
     </ClCompile>
     <ClCompile Include="..\..\debugger\symbols.cpp">
       <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\debugger\debugger.cpp">
+      <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\screen.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

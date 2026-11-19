@@ -12,6 +12,8 @@
 
 class Memory;
 
+static inline constexpr int LabelWidth = 16;
+
 struct DisInstruction {
     word_t addr = 0;
     int size = 0;
@@ -24,7 +26,6 @@ struct DisInstruction {
 class Disassembler {
 public:
     explicit Disassembler(const Memory& memory);
-    virtual ~Disassembler() = default;
 
     DisInstruction disassemble(word_t addr);
 

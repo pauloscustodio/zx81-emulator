@@ -10,8 +10,7 @@
 
 class Memory {
 public:
-    Memory();
-    virtual ~Memory() = default;
+    explicit Memory();
 
     byte_t fetch8(word_t addr) const;
     byte_t read8(word_t addr) const;

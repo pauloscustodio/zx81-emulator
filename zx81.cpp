@@ -4,29 +4,32 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
-#include "cpu.h"
-#include "disasm.h"
+#include "debugger.h"
 #include "machine.h"
-#include "symbols.h"
-#include <iostream>
+#include <cstdio>
 
-static Machine mach;
-static Disassembler disasm(mach.memory());
-static SymbolTable symtab;
+// SDL.h defines its own main; remove the definition
+#undef main
 
 int main() {
-    mach.cpu().reset();
+    // avoid that the windows subsystem buffers stdout and stderr,
+    // which causes the output to be delayed
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
 
-    Registers regs = mach.cpu().get_registers();
-    std::cout << "Initial CPU state:\n" << regs.to_string() << std::endl;
 
-    while (regs.pc != 0x04c1) {     // run until DISPLAY_6 (idle loop) is reached
-        auto instr = disasm.disassemble(regs.pc);
-        std::cout << instr.format(symtab) << std::endl;
+    // make these static to avoid large stack warning
+    static Machine machine;
+    static Debugger debugger(machine);
 
-        mach.cpu().step();
-        regs = mach.cpu().get_registers();
-    }
+    // start the debugger thread
+    debugger.start();
 
-    std::cout << "Final CPU state:\n" << regs.to_string() << std::endl;
+    // SDL and ZX81 run on the main thread.
+    machine.run();
+
+    // stop the debugger thread
+    debugger.stop();
+
+    return 0;
 }

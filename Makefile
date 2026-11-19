@@ -51,14 +51,17 @@ Z80EXFLAGS = -D$(ENDIANNESS) \
 
 FLAGS	= -O3 -MMD -Wall -Werror \
 		  $(Z80EXFLAGS) \
+		  $(filter-out -Dmain=SDL_main,$(shell pkg-config --cflags sdl2)) \
 		  -I. \
 		  -Icpu \
 		  -Icpu/z80ex/include \
 		  -Imachine \
-		  -Idebugger
+		  -Idebugger \
+		  -Igui \
+		  $(OPTS)
 CFLAGS	= -std=c11 $(FLAGS)
 CXXFLAGS= -std=c++20 $(FLAGS)
-LDFLAGS = 
+LDFLAGS = $(filter-out -lSDL2main,$(shell pkg-config --libs sdl2))
 
 #------------------------------------------------------------------------------
 # target files
@@ -69,7 +72,8 @@ BUILD_DIRS=	$(BUILD_DIR) \
 			$(BUILD_DIR)/cpu \
 			$(BUILD_DIR)/cpu/z80ex \
 			$(BUILD_DIR)/machine \
-			$(BUILD_DIR)/debugger
+			$(BUILD_DIR)/debugger \
+			$(BUILD_DIR)/gui
 			
 CSRCS	:= cpu/z80ex/z80ex.c \
 		   cpu/z80ex/z80ex_dasm.c
@@ -77,7 +81,8 @@ CSRCS	:= cpu/z80ex/z80ex.c \
 CXXSRCS	:= $(wildcard *.cpp) \
 		   $(wildcard cpu/*.cpp) \
 		   $(wildcard machine/*.cpp) \
-		   $(wildcard debugger/*.cpp)
+		   $(wildcard debugger/*.cpp) \
+		   $(wildcard gui/*.cpp) 
 		   
 OBJS 	:= $(patsubst %.c,$(BUILD_DIR)/%.o,$(CSRCS)) \
 		   $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(CXXSRCS))

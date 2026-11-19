@@ -18,10 +18,7 @@ class Traps {
 public:
     using TrapHandler = std::function<void(Cpu&)>;
 
-    Traps() = default; // TODO: install traps in constructor
-    virtual ~Traps() = default;
-    Traps(const Traps&) = delete;
-    Traps& operator=(const Traps&) = delete;
+    explicit Traps() = default; // TODO: install traps in constructor
 
     TrapHandler* find(word_t addr);
 

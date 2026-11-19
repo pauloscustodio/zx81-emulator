@@ -29,10 +29,8 @@ struct Registers {
 
 class Cpu {
 public:
-    Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps);
+    explicit Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps);
     virtual ~Cpu();
-    Cpu(const Cpu&) = delete;
-    Cpu& operator=(const Cpu&) = delete;
 
     void reset();
     void step();

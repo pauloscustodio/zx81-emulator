@@ -115,7 +115,7 @@ static std::string replace_iy_references(const std::string& text,
         }
         else {
             // Look up the symbol table
-            std::vector<const Symbol*> symbols = symtab.get(ERRNO + value);
+            std::vector<const Symbol*> symbols = symtab.get(ERR_NO + value);
             if (!symbols.empty()) {
                 // Replace with the first symbol name
                 result += "iy+" + symbols.front()->name + "-IY0";

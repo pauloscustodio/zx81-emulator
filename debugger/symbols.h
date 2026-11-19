@@ -19,7 +19,7 @@ struct Symbol {
 
 class SymbolTable {
 public:
-    SymbolTable();
+    explicit SymbolTable();
 
     // Add a symbol. Returns false if its name already exists.
     bool add(std::string name, int value,
