@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     // parse command line arguments
     bool debug = false;
     while (true) {
-        int c = getopt(argc, argv, "d");
+        int c = mygetopt(argc, argv, "d");
         if (c == -1) {
             break;
         }

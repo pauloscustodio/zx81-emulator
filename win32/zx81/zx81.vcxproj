@@ -174,7 +174,7 @@
     <ClCompile Include="..\..\cpu\disasm.cpp" />
     <ClCompile Include="..\..\debugger\debugger.cpp" />
     <ClCompile Include="..\..\debugger\symbols.cpp" />
-    <ClCompile Include="..\..\getopt.cpp" />
+    <ClCompile Include="..\..\getopt.c" />
     <ClCompile Include="..\..\gui\screen.cpp" />
     <ClCompile Include="..\..\machine\clock.cpp" />
     <ClCompile Include="..\..\machine\machine.cpp" />

@@ -39,13 +39,13 @@
 #include "getopt.h"
 
 
-char* optarg = nullptr;
+char* optarg = NULL;
 int optind = 0;
 int opterr = 1;
 int optopt = '?';
 
 
-static char** prev_argv = nullptr;        /* Keep a copy of argv and argc to */
+static char** prev_argv = NULL;        /* Keep a copy of argv and argc to */
 static int prev_argc = 0;              /*    tell if getopt params change */
 static int argv_index = 0;             /* Option we're checking */
 static int argv_index2 = 0;            /* Option argument we're checking */
@@ -90,7 +90,7 @@ static int permute_argv_once() {
 }
 
 
-int getopt(int argc, char** argv, const char* optstr) {
+int mygetopt(int argc, char** argv, const char* optstr) {
     int c = 0;
 
     /* If we have new argv, reinitialize */
@@ -109,7 +109,7 @@ int getopt(int argc, char** argv, const char* optstr) {
 getopt_top:
 
     /* Misc. initializations */
-    optarg = nullptr;
+    optarg = NULL;
 
     /* Dash-dash check */
     if(argv[argv_index] && !strcmp(argv[argv_index], "--")) {
@@ -118,7 +118,7 @@ getopt_top:
     }
 
     /* If we're at the end of argv, that's it. */
-    if(argv[argv_index] == nullptr) {
+    if(argv[argv_index] == NULL) {
         c = -1;
     }
     /* Are we looking at a string? Single dash is also a string */
@@ -149,7 +149,7 @@ getopt_top:
     }
     /* Otherwise we're looking at an option */
     else {
-        const char* opt_ptr = nullptr;
+        const char* opt_ptr = NULL;
 
         /* Grab the option */
         c = argv[argv_index][opt_offset++];
@@ -191,7 +191,7 @@ getopt_top:
 
                 /* Don't cross into the non-option argument list */
                 if(argv_index2 + nonopt >= prev_argc) {
-                    optarg = nullptr;
+                    optarg = NULL;
                 }
 
                 /* Move onto the next option */
@@ -203,7 +203,7 @@ getopt_top:
             }
 
             /* In case we got no argument for an option with required argument */
-            if(optarg == nullptr && opt_ptr[2] != ':') {
+            if(optarg == NULL && opt_ptr[2] != ':') {
                 optopt = c;
                 c = '?';
 
