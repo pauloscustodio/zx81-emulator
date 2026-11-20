@@ -4,22 +4,35 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
-#include "clock.h"
 #include "cpu.h"
 #include "machine.h"
 #include "memory.h"
-#include "ports.h"
-#include "screen.h"
+#include "rom.h"
 #include "screen.h"
 #include "traps.h"
 #include <zx81.h>
 
 Machine::Machine()
-    : cpu(memory, ports, clock, traps) {}
+    : cpu(memory, ports, clock, traps) {
+
+    // init rom
+    memory.add_rom(rom, sizeof(rom));
+
+    // make DISPLAY_5 return immediatelly 
+    // so that it does not execute the display file
+    traps.add(DISPLAY_5, trap_return);
+
+    // patch CDFLAG for SLOW mode
+    memory.write8(CDFLAG, SlowMode);
+
+    // reset the CPU
+    cpu.reset();
+}
 
 void Machine::run() {
     Screen screen;
 
+    // run until stopped
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -27,8 +40,6 @@ void Machine::run() {
                 running = false;
             }
         }
-
-        process_commands();
 
         if (!paused) {
             emulate();
@@ -38,75 +49,12 @@ void Machine::run() {
     }
 }
 
-void Machine::push_command(DebugCommand cmd) {
-    std::lock_guard<std::mutex> lock(command_mutex);
-    commands.push(cmd);
-}
-
-void Machine::push_response(const std::string& response) {
-    std::lock_guard<std::mutex> lock(response_mutex);
-    responses.push(response);
-}
-
-bool Machine::pop_response(std::string& response) {
-    std::lock_guard<std::mutex> lock(response_mutex);
-    if (responses.empty()) {
-        return false;
-    }
-
-    response = responses.front();
-    responses.pop();
-    return true;
-}
-
-void Machine::process_commands() {
-    // copy commands to a local queue to keep the mutex released
-    // during execution
-    std::queue<DebugCommand> local_commands;
-    {
-        std::lock_guard<std::mutex> lock(command_mutex);
-        while (!commands.empty()) {
-            auto cmd = commands.front();
-            commands.pop();
-            local_commands.push(cmd);
-        }
-    }
-
-    // mutex is released, now execute commands
-    process_commands(local_commands);
-}
-
-void Machine::process_commands(std::queue<DebugCommand>& commands) {
-    while (!commands.empty()) {
-        auto cmd = commands.front();
-        commands.pop();
-
-        switch (cmd.type) {
-        case DebugCommandType::Pause:
-            paused = true;
-            break;
-
-        case DebugCommandType::Resume:
-            paused = false;
-            break;
-
-        case DebugCommandType::Step:
-            paused = true;
-            emulate();
-            break;
-
-        case DebugCommandType::Registers:
-            // Read CPU registers here.
-            break;
-
-        case DebugCommandType::Quit:
-            running = false;
-            break;
-        }
-    }
-}
-
 void Machine::emulate() {
+    /*
+    timestamp ticks start
+    while elapsed < frame-ticks
+        step
+    */
 }
 
 void Machine::render(Screen& screen) {
@@ -114,4 +62,9 @@ void Machine::render(Screen& screen) {
     Registers regs = cpu.get_registers();
     word_t charset_addr = regs.i << 8;
     screen.render(memory, d_file, charset_addr);
+}
+
+void Machine::trap_return(Cpu &cpu)
+{
+    cpu.exec_ret();
 }

@@ -18,10 +18,9 @@ class Traps {
 public:
     using TrapHandler = std::function<void(Cpu&)>;
 
-    explicit Traps() = default; // TODO: install traps in constructor
-
-    TrapHandler* find(word_t addr);
+    TrapHandler find(word_t addr);
+    void add(word_t addr, TrapHandler handler);
 
 private:
-    std::unordered_map<word_t, TrapHandler> traps_;
+    std::unordered_map<word_t, TrapHandler> traps;
 };

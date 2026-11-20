@@ -5,12 +5,18 @@
 //-----------------------------------------------------------------------------
 
 #include "traps.h"
-#include "zx81.h"
+#include "cpu.h"
 
-Traps::TrapHandler* Traps::find(word_t addr) {
-    auto it = traps_.find(addr);
-    if (it != traps_.end()) {
-        return &it->second;
+Traps::TrapHandler Traps::find(word_t addr)
+{
+    auto it = traps.find(addr);
+    if (it != traps.end()) {
+        return it->second;
     }
     return nullptr;
+}
+
+void Traps::add(word_t addr, TrapHandler handler)
+{
+    traps[addr] = handler;
 }

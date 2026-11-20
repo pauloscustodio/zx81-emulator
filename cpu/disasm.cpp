@@ -16,7 +16,7 @@
 Disassembler::Disassembler(const Memory& memory)
     : memory_(memory) {}
 
-DisInstruction Disassembler::disassemble(word_t addr) {
+DisInstruction Disassembler::disassemble(int addr) {
     char buffer[64] = { 0 };
     int t_states = 0, t_states2 = 0;
     int size = z80ex_dasm(buffer, sizeof(buffer), /*flags*/0,

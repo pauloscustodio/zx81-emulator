@@ -13,13 +13,13 @@
 Screen::Screen() {
     // initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        fatal_error("SDL_Init failed: " + std::string(SDL_GetError()));
+        die("SDL_Init failed: " + std::string(SDL_GetError()));
     }
 
     window = SDL_CreateWindow(WindowTitle.data(),
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 384, 0);
     if (window == nullptr) {
-        fatal_error("Unable to create window: " + std::string(SDL_GetError()));
+        die("Unable to create window: " + std::string(SDL_GetError()));
     }
 
     renderer = SDL_CreateRenderer(window, -1,
@@ -30,19 +30,19 @@ Screen::Screen() {
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     }
     if (renderer == nullptr) {
-        fatal_error("Unable to create renderer: " + std::string(SDL_GetError()));
+        die("Unable to create renderer: " + std::string(SDL_GetError()));
     }
 
     screen = SDL_CreateRGBSurfaceWithFormat(0, 512, 384, 32,
                                             SDL_PIXELFORMAT_ARGB8888);
     if (screen == nullptr) {
-        fatal_error("Unable to create screen surface: " + std::string(SDL_GetError()));
+        die("Unable to create screen surface: " + std::string(SDL_GetError()));
     }
 
     screen_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
                                        SDL_TEXTUREACCESS_STREAMING, 512, 384);
     if (screen_texture == nullptr) {
-        fatal_error("Unable to create screen texture: " + std::string(SDL_GetError()));
+        die("Unable to create screen texture: " + std::string(SDL_GetError()));
     }
 
     // initialize the last_screen array to 0xff
@@ -92,7 +92,7 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     SDL_Surface* charset_rgb = SDL_CreateRGBSurface(SDL_SWSURFACE, 4096, 16, 32,
                                rmask, gmask, bmask, 0);
     if (charset_rgb == nullptr) {
-        fatal_error("Unable to create RGB surface: " + std::string(SDL_GetError()));
+        die("Unable to create RGB surface: " + std::string(SDL_GetError()));
     }
 
     // map black and white colors
@@ -177,7 +177,7 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     charset = SDL_ConvertSurfaceFormat(charset_rgb, SDL_PIXELFORMAT_ARGB8888, 0);
     if (charset == nullptr) {
         SDL_FreeSurface(charset_rgb);
-        fatal_error("Unable to convert charset surface: " + std::string(
+        die("Unable to convert charset surface: " + std::string(
                         SDL_GetError()));
     }
 

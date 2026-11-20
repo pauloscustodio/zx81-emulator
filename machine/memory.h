@@ -10,7 +10,8 @@
 
 class Memory {
 public:
-    explicit Memory();
+    void add_rom(const byte_t* data, int size);
+    void set_ram_limit(int limit);
 
     byte_t fetch8(word_t addr) const;
     byte_t read8(word_t addr) const;
@@ -20,6 +21,11 @@ public:
     void write16(word_t addr, word_t value);
 
 private:
-    byte_t mem_[MEM_SIZE] = { 0 };
-    word_t rom_size_ = 0;
+    byte_t mem[MemSize] = { 0 };
+    int rom_size = 0;
+    int ram_limit = MemSize;
+
+    bool is_rom(word_t addr) const;
+    bool is_ram(word_t addr) const;
+    bool is_video_mirror(word_t addr) const;
 };

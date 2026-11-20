@@ -15,7 +15,7 @@ class Memory;
 static inline constexpr int LabelWidth = 16;
 
 struct DisInstruction {
-    word_t addr = 0;
+    int addr = 0;
     int size = 0;
     std::string text;
     std::string hex_data;
@@ -27,7 +27,7 @@ class Disassembler {
 public:
     explicit Disassembler(const Memory& memory);
 
-    DisInstruction disassemble(word_t addr);
+    DisInstruction disassemble(int addr);
 
 private:
     const Memory& memory_;

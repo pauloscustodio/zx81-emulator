@@ -122,7 +122,10 @@
     <ClCompile Include="..\..\gui\screen.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\getopt.c">
+    <ClCompile Include="..\..\getopt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\options.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -41,11 +41,11 @@ public:
     void set_registers(const Registers& regs);
 
 private:
-    Memory& memory_;
-    Ports& ports_;
-    Clock& clock_;
-    Traps& traps_;
-    void* z80ctx_;
+    Memory& memory;
+    Ports& ports;
+    Clock& clock;
+    Traps& traps;
+    void* z80ctx = nullptr;
 
     static byte_t mread(struct _z80_cpu_context* cpu, word_t addr, int m1_state,
                         void* user_data);

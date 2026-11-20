@@ -15,7 +15,7 @@
 #include <string>
 
 [[noreturn]]
-void fatal_error(const std::string& msg) {
+void die(const std::string& msg) {
     std::cerr << "fatal error: " << msg << std::endl;
     exit(EXIT_FAILURE);
 }

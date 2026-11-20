@@ -174,13 +174,14 @@
     <ClCompile Include="..\..\cpu\disasm.cpp" />
     <ClCompile Include="..\..\debugger\debugger.cpp" />
     <ClCompile Include="..\..\debugger\symbols.cpp" />
-    <ClCompile Include="..\..\getopt.c" />
+    <ClCompile Include="..\..\getopt.cpp" />
     <ClCompile Include="..\..\gui\screen.cpp" />
     <ClCompile Include="..\..\machine\clock.cpp" />
     <ClCompile Include="..\..\machine\machine.cpp" />
     <ClCompile Include="..\..\machine\memory.cpp" />
     <ClCompile Include="..\..\machine\ports.cpp" />
     <ClCompile Include="..\..\machine\traps.cpp" />
+    <ClCompile Include="..\..\options.cpp" />
     <ClCompile Include="..\..\utils.cpp" />
     <ClCompile Include="..\..\zx81.cpp" />
   </ItemGroup>

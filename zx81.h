@@ -12,11 +12,23 @@
 using byte_t = uint8_t;
 using word_t = uint16_t;
 
+#define BYTE(x) (static_cast<byte_t>(x))
+#define WORD(x) (static_cast<word_t>(x))
+#define INT(x) (static_cast<int>(x))
+
 // machine constants
 static inline constexpr std::string_view WindowTitle = "ZX81 Emulator";
-static inline constexpr int MEM_SIZE = 0x10000;
-static inline constexpr int NumRows = 24;
-static inline constexpr int NumCols = 32;
+static inline constexpr int MemSize  = 0x10000;
+static inline constexpr int NumRows  = 24;
+static inline constexpr int NumCols  = 32;
+static inline constexpr int SlowMode = 0x40;
+static inline constexpr int FastMode = 0x00;
+
+// clock and interrups
+static inline constexpr int ClockHz   = 3250000;
+static inline constexpr int RefreshHz = 50;
+static inline constexpr int ClocksPerFrameFast = (ClockHz / RefreshHz);
+static inline constexpr int ClocksPerFrameSlow = (ClocksPerFrameFast / 4);
 
 // system variables
 static inline constexpr int SAVE_ADDR = 0x4009;
@@ -65,133 +77,31 @@ static inline constexpr int PRBUFF  = 0x403c;
 static inline constexpr int MEMBOT  = 0x405d;
 static inline constexpr int FREE2   = 0x407b;
 
+// Hook to exit the emulator
+static inline constexpr int EXIT_HOOK = 8191;
 
-#if 0
-#include "z80ex.h"
-#include <cstdint>
-#include <functional>
-#include <string>
+// Hook to dump memory and z80 state to a file
+static inline constexpr int DUMP_HOOK = 8190;    	
 
-class CpuZ80 {
-public:
-    void reset();
-    void run_cycles(int cycles);
-    void step();
+// ROM routines
+static inline constexpr int  PRINT_A   = 0x0010;
+static inline constexpr int  PRINT_CH  = 0x07f1;
+static inline constexpr int  PRINT_SP  = 0x07f5;
+static inline constexpr int  DISPLAY_5 = 0x02b5;
+static inline constexpr int  KEYBOARD  = 0x02bb;
 
-    Registers get_registers() const;
-    void set_registers(const Registers& regs);
+// SAVE "FILE" after name has been parsed
+static inline constexpr int  SAVE1     = 0x02fc;    
 
-private:
-    Z80EX_CONTEXT* cpu_;
-};
+static inline constexpr int  NEXT_PROG = 0x0347;
+static inline constexpr int  DISPLAY_6 = 0x04c1;
+static inline constexpr int  SLOW_DISP = 0x04cf;
+static inline constexpr int  FAST      = 0x0f23;
+static inline constexpr int  SLOW      = 0x0f2b;
 
-class ICpu {
-public:
-    virtual void reset() = 0;
+// PAUSE after delay has been parsed and is in BC
+static inline constexpr int  PAUSE1    = 0x0f35;    
 
-    virtual void run_cycles(int cycles) = 0;
-    virtual void step() = 0;
-
-    virtual Registers registers() const = 0;
-    virtual void set_registers(const Registers&) = 0;
-
-    virtual ~ICpu() = default;
-};
-
-struct DecodedInstruction {
-    uint16_t address;
-
-    uint8_t bytes[4];
-    int size;
-
-    std::string mnemonic;
-    std::string operands;
-};
-
-class IDisassembler {
-public:
-    virtual DecodedInstruction
-    decode(uint16_t addr) const = 0;
-};
-
-struct CpuEvent {
-    uint16_t pc;
-    uint8_t opcode;
-};
-
-using ExecuteCallback = std::function<void(const CpuEvent&)>;
-
-class BreakpointManager {
-public:
-    void add(uint16_t addr);
-    void remove(uint16_t addr);
-
-    bool is_breakpoint(uint16_t addr) const;
-};
-
-enum class WatchType {
-    Read,
-    Write,
-    ReadWrite
-};
-
-class Emulator {
-public:
-    uint64_t cycles() const {
-        return cycles_;
-    }
-
-private:
-    CpuZ80 cpu_;
-    IMemory* memory_;
-
-    uint64_t cycles_ = 0;
-};
-
-class Emulator {
-    uint64_t total_cycles_ = 0;
-    uint64_t frame_cycles_ = 0;
-    uint64_t instructions_ = 0;
-};
-class Machine {
-public:
-    Machine()
-        : cpu(memory, ports) {
-    }
-
-private:
-    Memory memory;
-    Ports ports;
-    Cpu cpu;
-};
-
-while (running) {
-    // SDL events
-    processSDLEvents();
-
-    // Debugger commands
-    DebugCommand cmd;
-
-    while (popCommand(cmd)) {
-        debugger.execute(cmd);
-    }
-
-    // Emulation
-    if (!debugger.isPaused()) {
-        zx81.executeFrame();
-    }
-
-    // Rendering
-    renderZX81();
-}
-
-void consoleThread() {
-    std::string line;
-
-    while (std::getline(std::cin, line)) {
-        DebugCommand cmd = parseCommand(line);
-        pushCommand(cmd);
-    }
-}
-
-#endif
+static inline constexpr int  SCROLL    = 0x0c0e;
+static inline constexpr int  COPY	   = 0x0869;
+static inline constexpr int  CHARSET   = 0x1e00;

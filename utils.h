@@ -18,7 +18,7 @@
         } \
     } while (0)
 
-[[noreturn]] void fatal_error(const std::string& msg);
+[[noreturn]] void die(const std::string& msg);
 
 std::string fmt_hex(int value, int digits = 2,
                     const std::string& prefix = "$");
