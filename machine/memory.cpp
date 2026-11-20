@@ -8,19 +8,16 @@
 #include "zx81.h"
 #include <cstring>
 
-void Memory::add_rom(const byte_t *data, int size)
-{
+void Memory::add_rom(const byte_t* data, int size) {
     memcpy(mem, data, size);
     rom_size = size;
 }
 
-void Memory::set_ram_limit(int limit)
-{
+void Memory::set_ram_limit(int limit) {
     ram_limit = limit;
 }
 
-byte_t Memory::fetch8(word_t addr) const
-{
+byte_t Memory::fetch8(word_t addr) const {
     if (is_video_mirror(addr)) {
         byte_t b = mem[addr & 0x7fff];
         return (b & 0x40) != 0 ? b : 0;

@@ -9,5 +9,5 @@
 #include <cstdint>
 
 struct Clock {
-    uint64_t t_states = 0;
+    uint64_t ticks = 0;
 };

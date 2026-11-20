@@ -27,8 +27,8 @@ static inline constexpr int FastMode = 0x00;
 // clock and interrups
 static inline constexpr int ClockHz   = 3250000;
 static inline constexpr int RefreshHz = 50;
-static inline constexpr int ClocksPerFrameFast = (ClockHz / RefreshHz);
-static inline constexpr int ClocksPerFrameSlow = (ClocksPerFrameFast / 4);
+static inline constexpr int ClocksPerFrameFast = ClockHz / RefreshHz;
+static inline constexpr int ClocksPerFrameSlow = ClocksPerFrameFast / 4;
 
 // system variables
 static inline constexpr int SAVE_ADDR = 0x4009;
@@ -81,7 +81,7 @@ static inline constexpr int FREE2   = 0x407b;
 static inline constexpr int EXIT_HOOK = 8191;
 
 // Hook to dump memory and z80 state to a file
-static inline constexpr int DUMP_HOOK = 8190;    	
+static inline constexpr int DUMP_HOOK = 8190;
 
 // ROM routines
 static inline constexpr int  PRINT_A   = 0x0010;
@@ -91,7 +91,7 @@ static inline constexpr int  DISPLAY_5 = 0x02b5;
 static inline constexpr int  KEYBOARD  = 0x02bb;
 
 // SAVE "FILE" after name has been parsed
-static inline constexpr int  SAVE1     = 0x02fc;    
+static inline constexpr int  SAVE1     = 0x02fc;
 
 static inline constexpr int  NEXT_PROG = 0x0347;
 static inline constexpr int  DISPLAY_6 = 0x04c1;
@@ -100,7 +100,7 @@ static inline constexpr int  FAST      = 0x0f23;
 static inline constexpr int  SLOW      = 0x0f2b;
 
 // PAUSE after delay has been parsed and is in BC
-static inline constexpr int  PAUSE1    = 0x0f35;    
+static inline constexpr int  PAUSE1    = 0x0f35;
 
 static inline constexpr int  SCROLL    = 0x0c0e;
 static inline constexpr int  COPY	   = 0x0869;

@@ -13,7 +13,6 @@
 #include "utils.h"
 #include "z80ex.h"
 #include "zx81.h"
-#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -48,10 +47,10 @@ std::string Registers::to_string() const {
 Cpu::Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps)
     : memory(memory), ports(ports), clock(clock), traps(traps) {
     z80ctx = z80ex_create(mread, this,
-                           mwrite, this,
-                           pread, this,
-                           pwrite, this,
-                           nullptr, nullptr);
+                          mwrite, this,
+                          pread, this,
+                          pwrite, this,
+                          nullptr, nullptr);
     if (!z80ctx) {
         die("Failed to create Z80EX context");
     }
@@ -74,15 +73,8 @@ void Cpu::step() {
     }
 
     // then execute the next instruction
-    int tstates = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
-    clock.t_states += tstates;
-}
-
-void Cpu::run_cycles(int cycles) {
-    uint64_t start_t_states = clock.t_states;
-    while (clock.t_states - start_t_states < static_cast<uint64_t>(cycles)) {
-        step();
-    }
+    int ticks = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
+    clock.ticks += ticks;
 }
 
 void Cpu::exec_ret() {

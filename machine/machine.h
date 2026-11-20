@@ -12,6 +12,7 @@
 #include "ports.h"
 #include "screen.h"
 #include "traps.h"
+#include <cstdint>
 
 class Machine {
 public:
@@ -20,18 +21,25 @@ public:
     void run();
 
 private:
-    bool running = true;
-    bool paused = false;
-
     Memory memory;
     Ports ports;
     Clock clock;
     Traps traps;
     Cpu cpu;
 
-    void emulate();
-    void render(Screen& screen);
+    // true while emulation is running; false to exit
+    bool running = true;
 
-    // CPU traps
-    static void trap_return(Cpu& cpu);
+    // detect when ROM finished initialization
+    bool init_finished = false;
+    uint64_t init_finisehd_ms = 0;
+
+    // detect PAUSE mode
+    bool in_pause = false;
+    uint64_t pause_start_ms = 0;
+    uint64_t pause_duration_ms = 0;
+
+    void run_frame();
+    void render(Screen& screen);
+    bool slow_mode() const;
 };

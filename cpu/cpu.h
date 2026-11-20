@@ -34,7 +34,6 @@ public:
 
     void reset();
     void step();
-    void run_cycles(int cycles);
     void exec_ret();
 
     Registers get_registers() const;

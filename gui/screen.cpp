@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "zx81.h"
 #include <SDL.h>
+#include <string>
 
 Screen::Screen() {
     // initialize SDL
@@ -25,8 +26,8 @@ Screen::Screen() {
     renderer = SDL_CreateRenderer(window, -1,
                                   SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr) {
-        std::cout << "Warning: Unable to create accelerated renderer: " <<
-                  SDL_GetError() << "\n";
+        std::cout << "Warning: Unable to create accelerated renderer: "
+                  << SDL_GetError() << "\n";
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     }
     if (renderer == nullptr) {
@@ -81,13 +82,13 @@ void Screen::render(const Memory& memory, word_t d_file, word_t charset_addr) {
 void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     // create a rgb surface to hold 256 8x8 characters
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    Uint32 rmask = 0xff000000;
-    Uint32 gmask = 0x00ff0000;
-    Uint32 bmask = 0x0000ff00;
+    uint32_t rmask = 0xff000000;
+    uint32_t gmask = 0x00ff0000;
+    uint32_t bmask = 0x0000ff00;
 #else
-    Uint32 rmask = 0x000000ff;
-    Uint32 gmask = 0x0000ff00;
-    Uint32 bmask = 0x00ff0000;
+    uint32_t rmask = 0x000000ff;
+    uint32_t gmask = 0x0000ff00;
+    uint32_t bmask = 0x00ff0000;
 #endif
     SDL_Surface* charset_rgb = SDL_CreateRGBSurface(SDL_SWSURFACE, 4096, 16, 32,
                                rmask, gmask, bmask, 0);
@@ -96,11 +97,11 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     }
 
     // map black and white colors
-    Uint32 black = SDL_MapRGB(charset_rgb->format, 0, 0, 0);
-    Uint32 white = SDL_MapRGB(charset_rgb->format, 255, 255, 255);
+    uint32_t black = SDL_MapRGB(charset_rgb->format, 0, 0, 0);
+    uint32_t white = SDL_MapRGB(charset_rgb->format, 255, 255, 255);
 
     // base points to the top-left pixel of the surface
-    Uint32* base = (Uint32*)charset_rgb->pixels;
+    uint32_t* base = (uint32_t*)charset_rgb->pixels;
 
     // addr points to the start of the characters bits
     // bit 0 of I is 1 for CHR$128 mode, where bit 7 of the char selects a new pattern
@@ -122,10 +123,10 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
             slot = (i < 64) ? i : (i + 64);
         }
 
-        Uint32* char_pixel = base + slot * 16;
+        uint32_t* char_pixel = base + slot * 16;
 
         for (int row = 0; row < 8; row++) {
-            Uint32* pixel = char_pixel + row * pitch * 2;
+            uint32_t* pixel = char_pixel + row * pitch * 2;
             byte_t b = memory.read8(addr++);
 
             for (int col = 0; col < 8; col++) {
@@ -177,8 +178,8 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     charset = SDL_ConvertSurfaceFormat(charset_rgb, SDL_PIXELFORMAT_ARGB8888, 0);
     if (charset == nullptr) {
         SDL_FreeSurface(charset_rgb);
-        die("Unable to convert charset surface: " + std::string(
-                        SDL_GetError()));
+        die("Unable to convert charset surface: " +
+            std::string(SDL_GetError()));
     }
 
     SDL_FreeSurface(charset_rgb);

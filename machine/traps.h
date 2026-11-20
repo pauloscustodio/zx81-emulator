@@ -7,8 +7,8 @@
 #pragma once
 
 #include "zx81.h"
+#include <array>
 #include <functional>
-#include <unordered_map>
 
 class Cpu;
 
@@ -22,5 +22,5 @@ public:
     void add(word_t addr, TrapHandler handler);
 
 private:
-    std::unordered_map<word_t, TrapHandler> traps;
+    std::array<TrapHandler, MemSize> traps = { 0 };
 };

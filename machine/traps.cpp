@@ -7,16 +7,10 @@
 #include "traps.h"
 #include "cpu.h"
 
-Traps::TrapHandler Traps::find(word_t addr)
-{
-    auto it = traps.find(addr);
-    if (it != traps.end()) {
-        return it->second;
-    }
-    return nullptr;
+Traps::TrapHandler Traps::find(word_t addr) {
+    return traps[addr];
 }
 
-void Traps::add(word_t addr, TrapHandler handler)
-{
+void Traps::add(word_t addr, TrapHandler handler) {
     traps[addr] = handler;
 }
