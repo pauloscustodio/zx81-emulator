@@ -23,7 +23,7 @@ Machine::Machine()
 
     // make DISPLAY_5 return immediatelly
     // so that it does not execute the display file
-    traps.add(DISPLAY_5, [this](Cpu & cpu) {
+    traps.add(DISPLAY_5, [](Cpu & cpu) {
         cpu.exec_ret();
     });
 
