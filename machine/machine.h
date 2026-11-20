@@ -8,6 +8,7 @@
 
 #include "clock.h"
 #include "cpu.h"
+#include "keyboard.h"
 #include "memory.h"
 #include "ports.h"
 #include "screen.h"
@@ -22,6 +23,7 @@ public:
 
 private:
     Memory memory;
+    Keyboard keyboard;
     Ports ports;
     Clock clock;
     Traps traps;
@@ -32,7 +34,7 @@ private:
 
     // detect when ROM finished initialization
     bool init_finished = false;
-    uint64_t init_finisehd_ms = 0;
+    uint64_t init_finished_ms = 0;
 
     // detect PAUSE mode
     bool in_pause = false;

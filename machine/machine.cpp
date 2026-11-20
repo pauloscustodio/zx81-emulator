@@ -16,7 +16,7 @@
 #include <SDL.h>
 
 Machine::Machine()
-    : cpu(memory, ports, clock, traps) {
+    : ports(keyboard), cpu(memory, ports, clock, traps) {
 
     // init rom
     memory.add_rom(rom, sizeof(rom));
@@ -50,7 +50,7 @@ Machine::Machine()
     auto init_finished_trap = [this](Cpu & cpu) {
         if (!init_finished) {
             init_finished = true;
-            init_finisehd_ms = SDL_GetTicks64();
+            init_finished_ms = SDL_GetTicks64();
         }
     };
     traps.add(DISPLAY_6, init_finished_trap);
@@ -76,8 +76,24 @@ void Machine::run() {
     while (running) {
         SDL_Event event;
         while (running && SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+            switch (event.type) {
+            case SDL_KEYDOWN:
+                // exit pause on any key press
+                in_pause = false;
+
+                // key pressed, update matrix
+                keyboard.handle_sdl_event(&event);
+                break;
+
+            case SDL_KEYUP:
+                // key released, update matrix
+                keyboard.handle_sdl_event(&event);
+                break;
+
+            case SDL_QUIT:
+                // quit the emulation
                 running = false;
+                break;
             }
         }
 
