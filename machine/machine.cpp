@@ -6,6 +6,9 @@
 
 #include "chars.h"
 #include "cpu.h"
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlrenderer3.h"
 #include "machine.h"
 #include "memory.h"
 #include "options.h"
@@ -117,8 +120,30 @@ void Machine::run() {
     // run until stopped
     while (running) {
         handle_events(screen);
+
+        // Start the Dear ImGui frame
+        ImGui_ImplSDL3_NewFrame();
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui::NewFrame();
+
+        Registers regs = cpu.get_registers();
+        ImGui::Begin("CPU");
+        ImGui::Text("%s", regs.to_string().c_str());
+        ImGui::End();
+
         run_frame();
         render(screen);
+
+        // Rendering
+        ImGui::Render();
+        SDL_SetRenderDrawColor(screen.get_debug_renderer(), 0, 0, 0, 255);
+        SDL_RenderClear(screen.get_debug_renderer());
+
+        ImGui_ImplSDLRenderer3_RenderDrawData(
+            ImGui::GetDrawData(),
+            screen.get_debug_renderer());
+
+        SDL_RenderPresent(screen.get_debug_renderer());
     }
 
     // destroys window when screen goes out of scope
@@ -139,6 +164,10 @@ void Machine::load_dump(const std::string& filename) {
 void Machine::handle_events(Screen& screen) {
     SDL_Event event;
     while (running && SDL_PollEvent(&event)) {
+        // Forward your event to backend
+        ImGui_ImplSDL3_ProcessEvent(&event);
+
+        // handle events
         bool control = (event.key.mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
         switch (event.type) {
         case SDL_EVENT_WINDOW_RESIZED:

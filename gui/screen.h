@@ -7,8 +7,8 @@
 #pragma once
 
 #include "memory.h"
+#include "sdl.h"
 #include "zx81.h"
-#include <SDL3/SDL.h>
 
 class Screen {
 public:
@@ -20,12 +20,10 @@ public:
     void toggle_keyboard_overlay();
     void snap_windows();
 
-    SDL_Window* get_main_window() const {
-        return main_window;
-    }
-    SDL_Window* get_keyboard_window() const {
-        return keyboard_window;
-    }
+    SDL_Window* get_main_window() const;
+    SDL_Window* get_debug_window() const;
+    SDL_Renderer* get_debug_renderer() const;
+    SDL_Window* get_keyboard_window() const;
 
 private:
     static inline constexpr int DockOverlap = 11;
@@ -34,6 +32,10 @@ private:
     SDL_Window* main_window = nullptr;
     SDL_Renderer* main_renderer = nullptr;
     SDL_Texture* screen_texture = nullptr;
+
+    // debugger window and renderer
+    SDL_Window* debug_window = nullptr;
+    SDL_Renderer* debug_renderer = nullptr;
 
     // SDL window, renderer and texture for the keyboard overlay
     SDL_Window* keyboard_window = nullptr;

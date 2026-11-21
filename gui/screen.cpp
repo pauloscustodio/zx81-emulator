@@ -4,76 +4,72 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlrenderer3.h"
 #include "memory.h"
 #include "screen.h"
-#include "utils.h"
+#include "sdl.h"
 #include "zx81.h"
 #include <string>
-#include <SDL3_image/SDL_image.h>
 
 Screen::Screen() {
     // initialize SDL
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        die("SDL_Init failed: " + std::string(SDL_GetError()));
-    }
+    xSDL_Init(SDL_INIT_VIDEO);
 
     // create the main window and renderer
     float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     main_window = SDL_CreateWindow(
-                      WindowTitle.data(),
+                      "ZX81 Emulator",
                       int(512 * scale),
                       int(384 * scale),
                       SDL_WINDOW_RESIZABLE);
-
-    main_renderer = SDL_CreateRenderer(main_window, nullptr);
-    if (main_renderer == nullptr) {
-        die("Unable to create renderer: " + std::string(SDL_GetError()));
-    }
-
-    zx81_screen = SDL_CreateSurface(512, 384, SDL_PIXELFORMAT_ARGB8888);
-    if (zx81_screen == nullptr) {
-        die("Unable to create screen surface: " + std::string(SDL_GetError()));
-    }
-
-    screen_texture = SDL_CreateTexture(main_renderer, SDL_PIXELFORMAT_ARGB8888,
-                                       SDL_TEXTUREACCESS_STREAMING, 512, 384);
-    if (screen_texture == nullptr) {
-        die("Unable to create screen texture: " + std::string(SDL_GetError()));
-    }
+    main_renderer = xSDL_CreateRenderer(main_window, nullptr);
+    zx81_screen = xSDL_CreateSurface(512, 384, SDL_PIXELFORMAT_ARGB8888);
+    screen_texture = xSDL_CreateTexture(main_renderer, SDL_PIXELFORMAT_ARGB8888,
+                                        SDL_TEXTUREACCESS_STREAMING, 512, 384);
 
     // read the keyboard.png file from the same directory as the executable
     const char* base = SDL_GetBasePath();
     std::string filename = std::string(base) + KeyboardFilename.data();
-    keyboard_surface = IMG_Load(filename.c_str());
-    if (!keyboard_surface) {
-        die(SDL_GetError());
-    }
+    keyboard_surface = xIMG_Load(filename.c_str());
 
     // create the keyboard overlay window, renderer and texture
-    keyboard_window =
-        SDL_CreateWindow(
-            "ZX81 Keyboard",
-            keyboard_surface->w / 4,
-            keyboard_surface->h / 4,
-            0);
-
-    keyboard_renderer =
-        SDL_CreateRenderer(keyboard_window, nullptr);
-    if (keyboard_renderer == nullptr) {
-        die("Unable to create renderer: " + std::string(SDL_GetError()));
-    }
-
-    keyboard_texture =
-        SDL_CreateTextureFromSurface(keyboard_renderer, keyboard_surface);
-    if (!keyboard_texture) {
-        die(SDL_GetError());
-    }
+    keyboard_window = SDL_CreateWindow(
+                          "ZX81 Keyboard",
+                          keyboard_surface->w / 4,
+                          keyboard_surface->h / 4,
+                          0);
+    keyboard_renderer = xSDL_CreateRenderer(keyboard_window, nullptr);
+    keyboard_texture = xSDL_CreateTextureFromSurface(keyboard_renderer,
+                       keyboard_surface);
 
     SDL_HideWindow(keyboard_window);
     keyboard_visible = false;
 
     // move the keyboard window to below the main window
     snap_windows();
+
+    // create the debugger window
+    debug_window = SDL_CreateWindow(
+                       "ZX81 Debugger",
+                       int(512 * scale),
+                       int(384 * scale),
+                       SDL_WINDOW_RESIZABLE);
+    debug_renderer = xSDL_CreateRenderer(debug_window, nullptr);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |=
+        ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |=
+        ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL3_InitForSDLRenderer(debug_window, debug_renderer);
+    ImGui_ImplSDLRenderer3_Init(debug_renderer);
 
     // initialize the last_screen array to 0xff
     // so that the first update will redraw the entire screen
@@ -82,6 +78,10 @@ Screen::Screen() {
 }
 
 Screen::~Screen() {
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+
     SDL_DestroySurface(zx81_screen);
     SDL_DestroySurface(zx81_charset);
 
@@ -90,6 +90,9 @@ Screen::~Screen() {
 
     SDL_DestroyRenderer(keyboard_renderer);
     SDL_DestroyWindow(keyboard_window);
+
+    SDL_DestroyRenderer(debug_renderer);
+    SDL_DestroyWindow(debug_window);
 
     SDL_DestroyTexture(screen_texture);
     SDL_DestroyRenderer(main_renderer);
@@ -132,26 +135,19 @@ void Screen::render(const Memory& memory, word_t d_file, word_t charset_addr) {
         dest.h = float(scale * 192);
         dest.x = (w - dest.w) / 2.0f;
         dest.y = (h - dest.h) / 2.0f;
-
-        if (!SDL_RenderTexture(main_renderer,
-                               screen_texture,
-                               nullptr,
-                               &dest)) {
-            std::cerr << "Render failed: " << SDL_GetError() << std::endl;
-        }
-
+        xSDL_RenderTexture(main_renderer,
+                           screen_texture,
+                           nullptr,
+                           &dest);
         SDL_RenderPresent(main_renderer);
 
         // draw the keyboard overlay
         SDL_RenderClear(keyboard_renderer);
-        if (!SDL_RenderTexture(
-                    keyboard_renderer,
-                    keyboard_texture,
-                    nullptr,
-                    nullptr)) {
-            std::cerr << "Render failed: " << SDL_GetError() << std::endl;
-        }
-
+        xSDL_RenderTexture(
+            keyboard_renderer,
+            keyboard_texture,
+            nullptr,
+            nullptr);
         SDL_RenderPresent(keyboard_renderer);
 
         screen_dirty = false;
@@ -193,26 +189,41 @@ void Screen::snap_windows() {
     SDL_SetWindowPosition(
         keyboard_window,
         main_x,
-        main_y + top + +main_h + bottom - DockOverlap
+        main_y + top + main_h + bottom - DockOverlap
     );
+
+    SDL_SetWindowPosition(
+        debug_window,
+        main_x + right + main_w + right - DockOverlap,
+        main_y
+    );
+}
+
+SDL_Window* Screen::get_main_window() const {
+    return main_window;
+}
+
+SDL_Window* Screen::get_debug_window() const {
+    return debug_window;
+}
+
+SDL_Renderer* Screen::get_debug_renderer() const {
+    return debug_renderer;
+}
+
+SDL_Window* Screen::get_keyboard_window() const {
+    return keyboard_window;
 }
 
 // creates a sdl surface with the zx81 character set
 void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     // create a rgb surface to hold 256 8x8 characters
-    SDL_Surface* charset_rgb = SDL_CreateSurface(4096, 16,
+    SDL_Surface* charset_rgb = xSDL_CreateSurface(4096, 16,
                                SDL_PIXELFORMAT_ARGB8888);
-    if (charset_rgb == nullptr) {
-        die("Unable to create RGB surface: " + std::string(SDL_GetError()));
-    }
 
     // map black and white colors
-    const SDL_PixelFormatDetails* format_details = SDL_GetPixelFormatDetails(
-                charset_rgb->format);
-    if (format_details == nullptr) {
-        SDL_DestroySurface(charset_rgb);
-        die("Unable to get pixel format details: " + std::string(SDL_GetError()));
-    }
+    const SDL_PixelFormatDetails* format_details =
+        xSDL_GetPixelFormatDetails(charset_rgb->format);
     uint32_t black = SDL_MapRGB(format_details, nullptr, 0, 0, 0);
     uint32_t white = SDL_MapRGB(format_details, nullptr, 255, 255, 255);
 
@@ -291,13 +302,7 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     if (zx81_charset) {
         SDL_DestroySurface(zx81_charset);
     }
-    zx81_charset = SDL_ConvertSurface(charset_rgb, SDL_PIXELFORMAT_ARGB8888);
-    if (zx81_charset == nullptr) {
-        SDL_DestroySurface(charset_rgb);
-        die("Unable to convert charset surface: " +
-            std::string(SDL_GetError()));
-    }
-
+    zx81_charset = xSDL_ConvertSurface(charset_rgb, SDL_PIXELFORMAT_ARGB8888);
     SDL_DestroySurface(charset_rgb);
 }
 

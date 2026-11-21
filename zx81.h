@@ -20,9 +20,6 @@ using word_t = uint16_t;
 #define WORD(x) (static_cast<word_t>(x))
 #define INT(x) (static_cast<int>(x))
 
-// App name and window title
-static inline constexpr std::string_view WindowTitle = "ZX81 Emulator";
-
 // name of files
 static inline constexpr std::string_view DumpFilename 	  = "zx81.dump";
 static inline constexpr std::string_view LPrintFilename   = "zx81.txt";

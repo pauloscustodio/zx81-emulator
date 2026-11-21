@@ -37,6 +37,33 @@
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{83a91f72-5085-4def-bf6d-f2b0defa4010}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\gui\imgui">
+      <UniqueIdentifier>{a8fd4268-de3a-4aba-b98e-451a04e6b4bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\imgui">
+      <UniqueIdentifier>{d7c67f76-5552-4182-973b-4cfa1984b58a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\imgui\backends">
+      <UniqueIdentifier>{339a6a8a-230d-48ae-b06c-6c7bed7e2cb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\imgui\backends">
+      <UniqueIdentifier>{626894e8-637e-4db1-9bd1-f51e8e186ed4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\imgui">
+      <UniqueIdentifier>{7ae95580-403e-4c24-96e6-7c64a636ea11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\imgui\misc">
+      <UniqueIdentifier>{f89b8513-37fa-4667-9b5a-7c27d935ab77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\imgui\misc\cpp">
+      <UniqueIdentifier>{f465e0be-20f7-40fb-8bfd-9b887567b9bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\imgui\misc">
+      <UniqueIdentifier>{ae025605-37ef-44d8-a1c2-a40fe945cbe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\imgui\misc\cpp">
+      <UniqueIdentifier>{8b6baeb4-23de-4f99-a385-3f0f329af3e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\zx81.h">
@@ -99,6 +126,36 @@
     <ClInclude Include="..\..\machine\printer.h">
       <Filter>Header Files\machine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\imconfig.h">
+      <Filter>Header Files\gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\imgui.h">
+      <Filter>Header Files\gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\imgui_internal.h">
+      <Filter>Header Files\gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\imstb_rectpack.h">
+      <Filter>Header Files\gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\imstb_textedit.h">
+      <Filter>Header Files\gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\imstb_truetype.h">
+      <Filter>Header Files\gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\backends\imgui_impl_sdl3.h">
+      <Filter>Header Files\gui\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\backends\imgui_impl_sdlrenderer3.h">
+      <Filter>Header Files\gui\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\imgui\misc\cpp\imgui_stdlib.h">
+      <Filter>Header Files\gui\imgui\misc\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\sdl.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -155,5 +212,42 @@
     <ClCompile Include="..\..\machine\printer.cpp">
       <Filter>Source Files\machine</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\imgui.cpp">
+      <Filter>Source Files\gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\imgui_demo.cpp">
+      <Filter>Source Files\gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\imgui_draw.cpp">
+      <Filter>Source Files\gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\imgui_tables.cpp">
+      <Filter>Source Files\gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\backends\imgui_impl_sdl3.cpp">
+      <Filter>Source Files\gui\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\backends\imgui_impl_sdlrenderer3.cpp">
+      <Filter>Source Files\gui\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>Source Files\gui\imgui\misc\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\sdl.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\gui\imgui\misc\debuggers\imgui.natstepfilter">
+      <Filter>Resource Files\imgui</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\..\gui\imgui\misc\debuggers\imgui.natvis">
+      <Filter>Resource Files\imgui</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

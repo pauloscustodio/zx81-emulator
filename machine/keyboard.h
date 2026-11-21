@@ -7,10 +7,10 @@
 #pragma once
 
 #include "memory.h"
+#include "sdl.h"
 #include "zx81.h"
 #include <cstdint>
 #include <queue>
-#include <SDL3/SDL.h>
 #include <string>
 
 // bit mask with 1 at each selected column of the 8 keyboard rows

@@ -58,6 +58,8 @@ FLAGS	= -O3 -MMD -Wall -Werror \
 		  -Imachine \
 		  -Idebugger \
 		  -Igui \
+		  -Igui/imgui \
+		  -Igui/imgui/backends \
 		  $(OPTS)
 CFLAGS	= -std=c11 $(FLAGS)
 CXXFLAGS= -std=c++20 $(FLAGS)
@@ -73,7 +75,10 @@ BUILD_DIRS=	$(BUILD_DIR) \
 			$(BUILD_DIR)/cpu/z80ex \
 			$(BUILD_DIR)/machine \
 			$(BUILD_DIR)/debugger \
-			$(BUILD_DIR)/gui
+			$(BUILD_DIR)/gui \
+			$(BUILD_DIR)/gui/imgui \
+			$(BUILD_DIR)/gui/imgui/backends \
+			$(BUILD_DIR)/gui/imgui/misc/cpp
 			
 CSRCS	:= cpu/z80ex/z80ex.c \
 		   cpu/z80ex/z80ex_dasm.c
@@ -82,8 +87,12 @@ CXXSRCS	:= $(wildcard *.cpp) \
 		   $(wildcard cpu/*.cpp) \
 		   $(wildcard machine/*.cpp) \
 		   $(wildcard debugger/*.cpp) \
-		   $(wildcard gui/*.cpp) 
-		   
+		   $(wildcard gui/*.cpp) \
+		   $(wildcard gui/imgui/*.cpp) \
+		   gui/imgui/backends/imgui_impl_sdl3.cpp \
+		   gui/imgui/backends/imgui_impl_sdlrenderer3.cpp \
+		   gui/imgui/misc/cpp/imgui_stdlib.cpp
+
 OBJS 	:= $(patsubst %.c,$(BUILD_DIR)/%.o,$(CSRCS)) \
 		   $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(CXXSRCS))
 
@@ -149,9 +158,9 @@ t/input/bold_font.asm: rom/zx81_edition3.rom tools/make_bold_font.pl Makefile
 tidy:
 	@[ -f $(TIDY_STAMP) ] || touch -t 197001010000 $(TIDY_STAMP)
 	find . \( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.re' \) \
-		-newer $(TIDY_STAMP) | grep -v z80ex | xargs $(ASTYLE)
+		-newer $(TIDY_STAMP) | grep -v z80ex | grep -v imgui | xargs $(ASTYLE)
 	find . \( -name '*.pl' -o -name '*.pm' -o -name '*.t' \) \
-		-newer $(TIDY_STAMP) | grep -v z80ex | xargs $(PERLTIDY)
+		-newer $(TIDY_STAMP) | grep -v z80ex | grep -v imgui | xargs $(PERLTIDY)
 	touch $(TIDY_STAMP)
 
 #------------------------------------------------------------------------------
