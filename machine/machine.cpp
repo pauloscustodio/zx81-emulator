@@ -34,6 +34,12 @@ Machine::Machine()
         running = false;
     });
 
+    // dump state if DUMP_HOOK is called
+    traps.add(DUMP_HOOK, [this](Cpu & cpu) {
+        files.save_dump(DumpFilename.data());
+        cpu.exec_ret();
+    });
+
     // patch CDFLAG for SLOW mode
     memory.write8(CDFLAG, SlowMode);
 
