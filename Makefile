@@ -51,7 +51,7 @@ Z80EXFLAGS = -D$(ENDIANNESS) \
 
 FLAGS	= -O3 -MMD -Wall -Werror \
 		  $(Z80EXFLAGS) \
-		  $(filter-out -Dmain=SDL_main,$(shell pkg-config --cflags sdl2)) \
+		  $(filter-out -Dmain=SDL_main,$(shell pkg-config --cflags sdl3)) \
 		  -I. \
 		  -Icpu \
 		  -Icpu/z80ex/include \
@@ -61,7 +61,7 @@ FLAGS	= -O3 -MMD -Wall -Werror \
 		  $(OPTS)
 CFLAGS	= -std=c11 $(FLAGS)
 CXXFLAGS= -std=c++20 $(FLAGS)
-LDFLAGS = $(filter-out -lSDL2main,$(shell pkg-config --libs sdl2))
+LDFLAGS = $(filter-out -lSDL3main,$(shell pkg-config --libs sdl3))
 
 #------------------------------------------------------------------------------
 # target files

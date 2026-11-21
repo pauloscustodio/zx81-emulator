@@ -8,7 +8,7 @@
 
 #include "memory.h"
 #include "zx81.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 class Screen {
 public:

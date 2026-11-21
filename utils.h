@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #define release_assert(expr) do { \
         if (!(expr)) { \

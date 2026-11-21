@@ -8,34 +8,25 @@
 #include "screen.h"
 #include "utils.h"
 #include "zx81.h"
-#include <SDL.h>
 #include <string>
 
 Screen::Screen() {
     // initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         die("SDL_Init failed: " + std::string(SDL_GetError()));
     }
 
-    window = SDL_CreateWindow(WindowTitle.data(),
-                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 384, 0);
+    window = SDL_CreateWindow(WindowTitle.data(), 512, 384, 0);
     if (window == nullptr) {
         die("Unable to create window: " + std::string(SDL_GetError()));
     }
 
-    renderer = SDL_CreateRenderer(window, -1,
-                                  SDL_RENDERER_ACCELERATED);
-    if (renderer == nullptr) {
-        std::cout << "Warning: Unable to create accelerated renderer: "
-                  << SDL_GetError() << "\n";
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    }
+    renderer = SDL_CreateRenderer(window, nullptr);
     if (renderer == nullptr) {
         die("Unable to create renderer: " + std::string(SDL_GetError()));
     }
 
-    screen = SDL_CreateRGBSurfaceWithFormat(0, 512, 384, 32,
-                                            SDL_PIXELFORMAT_ARGB8888);
+    screen = SDL_CreateSurface(512, 384, SDL_PIXELFORMAT_ARGB8888);
     if (screen == nullptr) {
         die("Unable to create screen surface: " + std::string(SDL_GetError()));
     }
@@ -53,9 +44,9 @@ Screen::Screen() {
 }
 
 Screen::~Screen() {
-    SDL_FreeSurface(charset);
+    SDL_DestroySurface(charset);
     SDL_DestroyTexture(screen_texture);
-    SDL_FreeSurface(screen);
+    SDL_DestroySurface(screen);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -81,24 +72,19 @@ void Screen::render(const Memory& memory, word_t d_file, word_t charset_addr) {
 // creates a sdl surface with the zx81 character set
 void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     // create a rgb surface to hold 256 8x8 characters
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    uint32_t rmask = 0xff000000;
-    uint32_t gmask = 0x00ff0000;
-    uint32_t bmask = 0x0000ff00;
-#else
-    uint32_t rmask = 0x000000ff;
-    uint32_t gmask = 0x0000ff00;
-    uint32_t bmask = 0x00ff0000;
-#endif
-    SDL_Surface* charset_rgb = SDL_CreateRGBSurface(SDL_SWSURFACE, 4096, 16, 32,
-                               rmask, gmask, bmask, 0);
+    SDL_Surface* charset_rgb = SDL_CreateSurface(4096, 16, SDL_PIXELFORMAT_ARGB8888);
     if (charset_rgb == nullptr) {
         die("Unable to create RGB surface: " + std::string(SDL_GetError()));
     }
 
     // map black and white colors
-    uint32_t black = SDL_MapRGB(charset_rgb->format, 0, 0, 0);
-    uint32_t white = SDL_MapRGB(charset_rgb->format, 255, 255, 255);
+    const SDL_PixelFormatDetails* format_details = SDL_GetPixelFormatDetails(charset_rgb->format);
+    if (format_details == nullptr) {
+        SDL_DestroySurface(charset_rgb);
+        die("Unable to get pixel format details: " + std::string(SDL_GetError()));
+    }
+    uint32_t black = SDL_MapRGB(format_details, nullptr, 0, 0, 0);
+    uint32_t white = SDL_MapRGB(format_details, nullptr, 255, 255, 255);
 
     // base points to the top-left pixel of the surface
     uint32_t* base = (uint32_t*)charset_rgb->pixels;
@@ -173,16 +159,16 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
 
     // convert the rgb surface to a known format used by the screen surface
     if (charset) {
-        SDL_FreeSurface(charset);
+        SDL_DestroySurface(charset);
     }
-    charset = SDL_ConvertSurfaceFormat(charset_rgb, SDL_PIXELFORMAT_ARGB8888, 0);
+    charset = SDL_ConvertSurface(charset_rgb, SDL_PIXELFORMAT_ARGB8888);
     if (charset == nullptr) {
-        SDL_FreeSurface(charset_rgb);
+        SDL_DestroySurface(charset_rgb);
         die("Unable to convert charset surface: " +
             std::string(SDL_GetError()));
     }
 
-    SDL_FreeSurface(charset_rgb);
+    SDL_DestroySurface(charset_rgb);
 }
 
 void Screen::update_screen(const Memory& memory, word_t d_file) {
@@ -235,7 +221,7 @@ void Screen::update_screen(const Memory& memory, word_t d_file) {
     if (screen_dirty) {
         SDL_UpdateTexture(screen_texture, nullptr, screen->pixels, screen->pitch);
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, screen_texture, nullptr, nullptr);
+        SDL_RenderTexture(renderer, screen_texture, nullptr, nullptr);
         SDL_RenderPresent(renderer);
 
         screen_dirty = false;

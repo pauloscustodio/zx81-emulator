@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -77,14 +77,14 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL2-2.32.10\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -99,14 +99,14 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL2-2.32.10\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -119,13 +119,13 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL2-2.32.10\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL2-2.32.10\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL3-3.4.20\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -140,13 +140,13 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL2-2.32.10\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL2-2.32.10\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL3-3.4.20\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -203,3 +203,4 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
+

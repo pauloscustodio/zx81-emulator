@@ -14,7 +14,6 @@
 #include "traps.h"
 #include "utils.h"
 #include "zx81.h"
-#include <SDL.h>
 #include <string>
 
 Machine::Machine()
@@ -60,7 +59,7 @@ Machine::Machine()
     auto init_finished_trap = [this](Cpu & cpu) {
         if (!init_finished) {
             init_finished = true;
-            init_finished_ms = SDL_GetTicks64();
+            init_finished_ms = SDL_GetTicks();
         }
     };
     traps.add(DISPLAY_6, init_finished_trap);
@@ -70,7 +69,7 @@ Machine::Machine()
     traps.add(PAUSE1, [this](Cpu & cpu) {
         Registers regs = cpu.get_registers();
         in_pause = true;
-        pause_start_ms = SDL_GetTicks64();
+        pause_start_ms = SDL_GetTicks();
         pause_duration_ms = INT(regs.bc) * 1000 / RefreshHz;
         cpu.exec_ret();
     });
@@ -140,21 +139,21 @@ void Machine::load_dump(const std::string& filename) {
 void Machine::handle_events() {
     SDL_Event event;
     while (running && SDL_PollEvent(&event)) {
-        bool control = (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)) != 0;
+        bool control = (event.key.mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
         switch (event.type) {
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN:
             // exit pause on any key press
             in_pause = false;
 
             // Copy
-            if (control && event.key.keysym.sym == SDLK_c) {
+            if (control && event.key.key == SDLK_C) {
                 std::string dump = get_screen_dump();
                 SDL_SetClipboardText(dump.c_str());
                 break;
             }
 
             // Paste
-            if (control && event.key.keysym.sym == SDLK_v) {
+            if (control && event.key.key == SDLK_V) {
                 char* text = SDL_GetClipboardText();
                 if (text) {
                     keyboard.paste(text);
@@ -164,20 +163,20 @@ void Machine::handle_events() {
             }
 
             // dump state and exit
-            if (event.key.keysym.sym == SDLK_ESCAPE) {
+            if (event.key.key == SDLK_ESCAPE) {
                 files.save_dump(DumpFilename.data());
                 running = false;
                 break;
             }
 
             // dump state to file
-            if (event.key.keysym.sym == SDLK_F6) {
+            if (event.key.key == SDLK_F6) {
                 files.save_dump(DumpFilename.data());
                 break;
             }
 
             // load state from file
-            if (event.key.keysym.sym == SDLK_F7) {
+            if (event.key.key == SDLK_F7) {
                 files.load_dump(DumpFilename.data());
                 break;
             }
@@ -187,12 +186,12 @@ void Machine::handle_events() {
             keyboard.handle_sdl_event(&event);
             break;
 
-        case SDL_KEYUP:
+        case SDL_EVENT_KEY_UP:
             // key released, update matrix
             keyboard.handle_sdl_event(&event);
             break;
 
-        case SDL_QUIT:
+        case SDL_EVENT_QUIT:
             // quit the emulation
             running = false;
             break;
@@ -205,7 +204,7 @@ void Machine::run_frame() {
     // Measure the start of the host video frame.
     // In SLOW mode we use wall-clock synchronization so that one
     // emulated frame takes exactly 1/RefreshHz seconds in real time.
-    uint64_t start_frame_ms = SDL_GetTicks64();
+    uint64_t start_frame_ms = SDL_GetTicks();
 
     // Execute one frame worth of Z80 clock cycles.
     // In SLOW mode this matches the real ZX81 timing.
@@ -227,7 +226,7 @@ void Machine::run_frame() {
         // lasts for N milliseconds of real time regardless of emulation
         // speed.
         if (in_pause) {
-            uint64_t elapsed_ms = SDL_GetTicks64() - pause_start_ms;
+            uint64_t elapsed_ms = SDL_GetTicks() - pause_start_ms;
 
             if (elapsed_ms < pause_duration_ms) {
 
@@ -289,7 +288,7 @@ void Machine::run_frame() {
     // In SLOW mode, synchronize emulation to real time by delaying
     // until a complete video frame period has elapsed.
     if (slow_mode() && options.slow) {
-        uint64_t elapsed_ms = SDL_GetTicks64() - start_frame_ms;
+        uint64_t elapsed_ms = SDL_GetTicks() - start_frame_ms;
 
         if (elapsed_ms < 1000 / RefreshHz) {
             uint64_t delay = 1000 / RefreshHz - elapsed_ms;

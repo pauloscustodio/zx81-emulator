@@ -11,7 +11,6 @@
 #include <cctype>
 #include <fstream>
 #include <iostream>
-#include <SDL.h>
 #include <string>
 #include <string_view>
 
@@ -23,33 +22,33 @@ static kbd_state_t sdlk2kbd_base(SDL_Keycode sym) {
     case SDLK_LSHIFT:
     case SDLK_RSHIFT:
         return K_SHIFT;
-    case SDLK_z:
+    case SDLK_Z:
         return K_Z;
-    case SDLK_x:
+    case SDLK_X:
         return K_X;
-    case SDLK_c:
+    case SDLK_C:
         return K_C;
-    case SDLK_v:
+    case SDLK_V:
         return K_V;
-    case SDLK_a:
+    case SDLK_A:
         return K_A;
-    case SDLK_s:
+    case SDLK_S:
         return K_S;
-    case SDLK_d:
+    case SDLK_D:
         return K_D;
-    case SDLK_f:
+    case SDLK_F:
         return K_F;
-    case SDLK_g:
+    case SDLK_G:
         return K_G;
-    case SDLK_q:
+    case SDLK_Q:
         return K_Q;
-    case SDLK_w:
+    case SDLK_W:
         return K_W;
-    case SDLK_e:
+    case SDLK_E:
         return K_E;
-    case SDLK_r:
+    case SDLK_R:
         return K_R;
-    case SDLK_t:
+    case SDLK_T:
         return K_T;
     case SDLK_1:
         return K_1;
@@ -71,35 +70,35 @@ static kbd_state_t sdlk2kbd_base(SDL_Keycode sym) {
         return K_7;
     case SDLK_6:
         return K_6;
-    case SDLK_p:
+    case SDLK_P:
         return K_P;
-    case SDLK_o:
+    case SDLK_O:
         return K_O;
-    case SDLK_i:
+    case SDLK_I:
         return K_I;
-    case SDLK_u:
+    case SDLK_U:
         return K_U;
-    case SDLK_y:
+    case SDLK_Y:
         return K_Y;
     case SDLK_RETURN:
         return K_RETURN;
-    case SDLK_l:
+    case SDLK_L:
         return K_L;
-    case SDLK_k:
+    case SDLK_K:
         return K_K;
-    case SDLK_j:
+    case SDLK_J:
         return K_J;
-    case SDLK_h:
+    case SDLK_H:
         return K_H;
     case SDLK_SPACE:
         return K_SPACE;
     case SDLK_PERIOD:
         return K_PERIOD;
-    case SDLK_m:
+    case SDLK_M:
         return K_M;
-    case SDLK_n:
+    case SDLK_N:
         return K_N;
-    case SDLK_b:
+    case SDLK_B:
         return K_B;
     case SDLK_BACKSPACE:
         return K_BACKSPACE;
@@ -113,7 +112,7 @@ static kbd_state_t sdlk2kbd_base(SDL_Keycode sym) {
         return K_RPAREN;
     case SDLK_SEMICOLON:
         return K_SEMICOLON;
-    case SDLK_QUOTE:
+    case SDLK_APOSTROPHE:
         return K_QUOTE;
     case SDLK_COMMA:
         return K_COMMA;
@@ -224,15 +223,15 @@ void Keyboard::keyup(kbd_state_t key) {
 }
 
 void Keyboard::handle_sdl_event(const SDL_Event* event) {
-    SDL_Keycode sym = event->key.keysym.sym;
-    bool shifted = (event->key.keysym.mod & KMOD_SHIFT) != 0;
+    SDL_Keycode sym = event->key.key;
+    bool shifted = (event->key.mod & SDL_KMOD_SHIFT) != 0;
     kbd_state_t key = sdlk2kbd(sym, shifted);
 
     switch (event->type) {
-    case SDL_KEYDOWN:
+    case SDL_EVENT_KEY_DOWN:
         keydown(key);
         break;
-    case SDL_KEYUP:
+    case SDL_EVENT_KEY_UP:
         keyup(key);
         break;
     }
@@ -285,7 +284,7 @@ bool Keyboard::queue_busy() const {
 }
 
 void Keyboard::queue_tick() {
-    uint64_t now = SDL_GetTicks64();
+    uint64_t now = SDL_GetTicks();
     if (now - q_event_ms < QueueTimeMs) {
         return; // not enough time has passed
     }
