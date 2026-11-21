@@ -146,6 +146,13 @@ void Machine::handle_events() {
             // exit pause on any key press
             in_pause = false;
 
+            // Copy
+            if (control && event.key.keysym.sym == SDLK_c) {
+                std::string dump = get_screen_dump();
+                SDL_SetClipboardText(dump.c_str());
+                break;
+            }
+
             // Paste
             if (control && event.key.keysym.sym == SDLK_v) {
                 char* text = SDL_GetClipboardText();
