@@ -47,6 +47,7 @@ zx81 input.bas
 
 When the emulator is running, these host-side controls are available:
 
+- `F1`: show a keyboard overlay below the main window
 - `F6`: save emulator state to `zx81.dump`
 - `F7`: restore emulator state from `zx81.dump`
 - `Esc`: save the current state to `zx81.dump` and exit immediately

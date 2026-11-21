@@ -119,17 +119,23 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include;C:\Users\paulo\repos\SDL3_image-3.4.8\include;C:\Users\paulo\repos\SDL3_image-3.4.8\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL3-3.4.20\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL3-3.4.20\VisualC\x64\Release;C:\Users\paulo\repos\SDL3_image-3.4.8\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;SDL3_image.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <PostBuildEvent>
+      <Command>copy /y $(ProjectDir)\..\..\keyboard.png $(TargetDir)</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy keyboard.png</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -140,17 +146,23 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WORDS_LITTLE_ENDIAN;Z80EX_VERSION_STR=1.1.21;Z80EX_API_REVISION=1;Z80EX_VERSION_MAJOR=1;Z80EX_VERSION_MINOR=21;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..;$(ProjectDir)\..\..\cpu;$(ProjectDir)\..\..\cpu\z80ex\include;$(ProjectDir)\..\..\debugger;$(ProjectDir)\..\..\machine;$(ProjectDir)\..\..\gui;C:\Users\paulo\repos\SDL3-3.4.20\include;C:\Users\paulo\repos\SDL3_image-3.4.8\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL3-3.4.20\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\paulo\repos\SDL3-3.4.20\VisualC\x64\Release;C:\Users\paulo\repos\SDL3_image-3.4.8\VisualC\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;SDL3_image.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <PostBuildEvent>
+      <Command>copy /y $(ProjectDir)\..\..\keyboard.png $(TargetDir)</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy keyboard.png</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cpu\cpu.h" />
@@ -203,4 +215,3 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
-

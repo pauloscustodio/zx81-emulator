@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "zx81.h"
 #include <string>
+#include <SDL3_image/SDL_image.h>
 
 Screen::Screen() {
     // initialize SDL
@@ -16,28 +17,63 @@ Screen::Screen() {
         die("SDL_Init failed: " + std::string(SDL_GetError()));
     }
 
+    // create the main window and renderer
     float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    window = SDL_CreateWindow(
-                 WindowTitle.data(),
-                 int(512 * scale),
-                 int(384 * scale),
-                 SDL_WINDOW_RESIZABLE);
+    main_window = SDL_CreateWindow(
+                      WindowTitle.data(),
+                      int(512 * scale),
+                      int(384 * scale),
+                      SDL_WINDOW_RESIZABLE);
 
-    renderer = SDL_CreateRenderer(window, nullptr);
-    if (renderer == nullptr) {
+    main_renderer = SDL_CreateRenderer(main_window, nullptr);
+    if (main_renderer == nullptr) {
         die("Unable to create renderer: " + std::string(SDL_GetError()));
     }
 
-    screen = SDL_CreateSurface(512, 384, SDL_PIXELFORMAT_ARGB8888);
-    if (screen == nullptr) {
+    zx81_screen = SDL_CreateSurface(512, 384, SDL_PIXELFORMAT_ARGB8888);
+    if (zx81_screen == nullptr) {
         die("Unable to create screen surface: " + std::string(SDL_GetError()));
     }
 
-    screen_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+    screen_texture = SDL_CreateTexture(main_renderer, SDL_PIXELFORMAT_ARGB8888,
                                        SDL_TEXTUREACCESS_STREAMING, 512, 384);
     if (screen_texture == nullptr) {
         die("Unable to create screen texture: " + std::string(SDL_GetError()));
     }
+
+    // read the keyboard.png file from the same directory as the executable
+    const char* base = SDL_GetBasePath();
+    std::string filename = std::string(base) + KeyboardFilename.data();
+    keyboard_surface = IMG_Load(filename.c_str());
+    if (!keyboard_surface) {
+        die(SDL_GetError());
+    }
+
+    // create the keyboard overlay window, renderer and texture
+    keyboard_window =
+        SDL_CreateWindow(
+            "ZX81 Keyboard",
+            keyboard_surface->w / 4,
+            keyboard_surface->h / 4,
+            0);
+
+    keyboard_renderer =
+        SDL_CreateRenderer(keyboard_window, nullptr);
+    if (keyboard_renderer == nullptr) {
+        die("Unable to create renderer: " + std::string(SDL_GetError()));
+    }
+
+    keyboard_texture =
+        SDL_CreateTextureFromSurface(keyboard_renderer, keyboard_surface);
+    if (!keyboard_texture) {
+        die(SDL_GetError());
+    }
+
+    SDL_HideWindow(keyboard_window);
+    keyboard_visible = false;
+
+    // move the keyboard window to below the main window
+    snap_windows();
 
     // initialize the last_screen array to 0xff
     // so that the first update will redraw the entire screen
@@ -46,11 +82,19 @@ Screen::Screen() {
 }
 
 Screen::~Screen() {
-    SDL_DestroySurface(charset);
+    SDL_DestroySurface(zx81_screen);
+    SDL_DestroySurface(zx81_charset);
+
+    SDL_DestroyTexture(keyboard_texture);
+    SDL_DestroySurface(keyboard_surface);
+
+    SDL_DestroyRenderer(keyboard_renderer);
+    SDL_DestroyWindow(keyboard_window);
+
     SDL_DestroyTexture(screen_texture);
-    SDL_DestroySurface(screen);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(main_renderer);
+    SDL_DestroyWindow(main_window);
+
     SDL_Quit();
 }
 
@@ -69,6 +113,88 @@ void Screen::render(const Memory& memory, word_t d_file, word_t charset_addr) {
 
     // update screen
     update_screen(memory, d_file);
+
+    // display if dirty
+    if (screen_dirty) {
+        // display the main screen
+        SDL_UpdateTexture(screen_texture, nullptr, zx81_screen->pixels,
+                          zx81_screen->pitch);
+        SDL_RenderClear(main_renderer);
+
+        int w, h;
+        SDL_GetWindowSize(main_window, &w, &h);
+
+        // scale to multiples of 256x192
+        int scale = std::max(1, std::min(w / 256, h / 192));
+
+        SDL_FRect dest;
+        dest.w = float(scale * 256);
+        dest.h = float(scale * 192);
+        dest.x = (w - dest.w) / 2.0f;
+        dest.y = (h - dest.h) / 2.0f;
+
+        if (!SDL_RenderTexture(main_renderer,
+                               screen_texture,
+                               nullptr,
+                               &dest)) {
+            std::cerr << "Render failed: " << SDL_GetError() << std::endl;
+        }
+
+        SDL_RenderPresent(main_renderer);
+
+        // draw the keyboard overlay
+        SDL_RenderClear(keyboard_renderer);
+        if (!SDL_RenderTexture(
+                    keyboard_renderer,
+                    keyboard_texture,
+                    nullptr,
+                    nullptr)) {
+            std::cerr << "Render failed: " << SDL_GetError() << std::endl;
+        }
+
+        SDL_RenderPresent(keyboard_renderer);
+
+        screen_dirty = false;
+    }
+}
+
+void Screen::set_dirty() {
+    screen_dirty = true;
+}
+
+void Screen::toggle_keyboard_overlay() {
+    if (keyboard_visible) {
+        SDL_HideWindow(keyboard_window);
+        keyboard_visible = false;
+    }
+    else {
+        SDL_ShowWindow(keyboard_window);
+        keyboard_visible = true;
+    }
+
+    screen_dirty = true;
+}
+
+void Screen::snap_windows() {
+    int main_x, main_y;
+    SDL_GetWindowPosition(main_window, &main_x, &main_y);
+
+    int main_w, main_h;
+    SDL_GetWindowSize(main_window, &main_w, &main_h);
+
+    int top, left, bottom, right;
+    SDL_GetWindowBordersSize(
+        main_window,
+        &top,
+        &left,
+        &bottom,
+        &right);
+
+    SDL_SetWindowPosition(
+        keyboard_window,
+        main_x,
+        main_y + top + +main_h + bottom - DockOverlap
+    );
 }
 
 // creates a sdl surface with the zx81 character set
@@ -162,11 +288,11 @@ void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     }
 
     // convert the rgb surface to a known format used by the screen surface
-    if (charset) {
-        SDL_DestroySurface(charset);
+    if (zx81_charset) {
+        SDL_DestroySurface(zx81_charset);
     }
-    charset = SDL_ConvertSurface(charset_rgb, SDL_PIXELFORMAT_ARGB8888);
-    if (charset == nullptr) {
+    zx81_charset = SDL_ConvertSurface(charset_rgb, SDL_PIXELFORMAT_ARGB8888);
+    if (zx81_charset == nullptr) {
         SDL_DestroySurface(charset_rgb);
         die("Unable to convert charset surface: " +
             std::string(SDL_GetError()));
@@ -212,7 +338,7 @@ void Screen::update_screen(const Memory& memory, word_t d_file) {
 
                 // blit the character from the charset to the screen
                 source.x = b * 16;
-                SDL_BlitSurface(charset, &source, screen, &dest);
+                SDL_BlitSurface(zx81_charset, &source, zx81_screen, &dest);
             }
 
             dest.x += 16;
@@ -220,31 +346,5 @@ void Screen::update_screen(const Memory& memory, word_t d_file) {
 
         addr++;        // skip the 0x76 at the end of the line
         dest.y += 16;
-    }
-
-    if (screen_dirty) {
-        SDL_UpdateTexture(screen_texture, nullptr, screen->pixels, screen->pitch);
-        SDL_RenderClear(renderer);
-
-        int w, h;
-        SDL_GetWindowSize(window, &w, &h);
-
-        // scale to multiples of 256x192
-        int scale = std::max(1, std::min(w / 256, h / 192));
-
-        SDL_FRect dest;
-        dest.w = float(scale * 256);
-        dest.h = float(scale * 192);
-        dest.x = (w - dest.w) / 2.0f;
-        dest.y = (h - dest.h) / 2.0f;
-
-        SDL_RenderTexture(renderer,
-                          screen_texture,
-                          nullptr,
-                          &dest);
-
-        SDL_RenderPresent(renderer);
-
-        screen_dirty = false;
     }
 }

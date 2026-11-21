@@ -16,19 +16,39 @@ public:
     virtual ~Screen();
 
     void render(const Memory& memory, word_t d_file, word_t charset_addr);
-    void set_dirty() {
-        screen_dirty = true;
+    void set_dirty();
+    void toggle_keyboard_overlay();
+    void snap_windows();
+
+    SDL_Window* get_main_window() const {
+        return main_window;
+    }
+    SDL_Window* get_keyboard_window() const {
+        return keyboard_window;
     }
 
 private:
-    // SDL window and renderer
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
-    SDL_Surface* screen = nullptr;
+    static inline constexpr int DockOverlap = 11;
+
+    // SDL window, renderer and texture for the main screen
+    SDL_Window* main_window = nullptr;
+    SDL_Renderer* main_renderer = nullptr;
     SDL_Texture* screen_texture = nullptr;
 
-    // the surface that holds the zx81 charset
-    SDL_Surface* charset = nullptr;
+    // SDL window, renderer and texture for the keyboard overlay
+    SDL_Window* keyboard_window = nullptr;
+    SDL_Renderer* keyboard_renderer = nullptr;
+
+    // SDL surface and texture for the keyboard overlay
+    SDL_Surface* keyboard_surface = nullptr;
+    SDL_Texture* keyboard_texture = nullptr;
+
+    // zx81 screen surface and charset surface
+    SDL_Surface* zx81_screen = nullptr;
+    SDL_Surface* zx81_charset = nullptr;
+
+    // is keyboard visible?
+    bool keyboard_visible = false;
 
     // last contents of the display file
     byte_t last_screen[NumRows][NumCols];

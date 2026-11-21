@@ -142,8 +142,11 @@ void Machine::handle_events(Screen& screen) {
         bool control = (event.key.mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
         switch (event.type) {
         case SDL_EVENT_WINDOW_RESIZED:
+        case SDL_EVENT_WINDOW_MOVED:
+            screen.snap_windows();
             screen.set_dirty();
             break;
+
         case SDL_EVENT_KEY_DOWN:
             // exit pause on any key press
             in_pause = false;
@@ -184,6 +187,11 @@ void Machine::handle_events(Screen& screen) {
                 break;
             }
 
+            // F1: toggle keyboard overlay
+            if (event.key.key == SDLK_F1) {
+                screen.toggle_keyboard_overlay();
+                break;
+            }
 
             // key pressed, update matrix
             keyboard.handle_sdl_event(&event);
@@ -195,8 +203,19 @@ void Machine::handle_events(Screen& screen) {
             break;
 
         case SDL_EVENT_QUIT:
-            // quit the emulation
             running = false;
+            break;
+
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+            // quit the emulation
+            if (event.window.windowID ==
+                    SDL_GetWindowID(screen.get_keyboard_window())) {
+                screen.toggle_keyboard_overlay();
+            }
+            else if (event.window.windowID ==
+                     SDL_GetWindowID(screen.get_main_window())) {
+                running = false;
+            }
             break;
         }
     }

@@ -24,8 +24,9 @@ using word_t = uint16_t;
 static inline constexpr std::string_view WindowTitle = "ZX81 Emulator";
 
 // name of files
-static inline constexpr std::string_view DumpFilename 	= "zx81.dump";
-static inline constexpr std::string_view LPrintFilename = "zx81.txt";
+static inline constexpr std::string_view DumpFilename 	  = "zx81.dump";
+static inline constexpr std::string_view LPrintFilename   = "zx81.txt";
+static inline constexpr std::string_view KeyboardFilename = "keyboard.png";
 
 // machine constants
 static inline constexpr int MemSize  = 0x10000;
