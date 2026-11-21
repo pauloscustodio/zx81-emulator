@@ -161,6 +161,7 @@
     <ClInclude Include="..\..\getopt.h" />
     <ClInclude Include="..\..\gui\screen.h" />
     <ClInclude Include="..\..\machine\clock.h" />
+    <ClInclude Include="..\..\machine\files.h" />
     <ClInclude Include="..\..\machine\keyboard.h" />
     <ClInclude Include="..\..\machine\machine.h" />
     <ClInclude Include="..\..\machine\memory.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="..\..\getopt.cpp" />
     <ClCompile Include="..\..\gui\screen.cpp" />
     <ClCompile Include="..\..\machine\clock.cpp" />
+    <ClCompile Include="..\..\machine\files.cpp" />
     <ClCompile Include="..\..\machine\keyboard.cpp" />
     <ClCompile Include="..\..\machine\machine.cpp" />
     <ClCompile Include="..\..\machine\memory.cpp" />

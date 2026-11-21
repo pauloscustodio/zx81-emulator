@@ -87,6 +87,9 @@
     <ClInclude Include="..\..\machine\keyboard.h">
       <Filter>Header Files\machine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\machine\files.h">
+      <Filter>Header Files\machine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -132,6 +135,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\machine\keyboard.cpp">
+      <Filter>Source Files\machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\machine\files.cpp">
       <Filter>Source Files\machine</Filter>
     </ClCompile>
   </ItemGroup>

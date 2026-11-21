@@ -12,12 +12,22 @@
 using byte_t = uint8_t;
 using word_t = uint16_t;
 
+#define TO_WORD(high, low) (static_cast<word_t>(((high) << 8) | (low)))
+#define HIGH_BYTE(word) (static_cast<byte_t>(((word) >> 8) & 0xFF))
+#define LOW_BYTE(word) (static_cast<byte_t>((word) & 0xFF))
+
 #define BYTE(x) (static_cast<byte_t>(x))
 #define WORD(x) (static_cast<word_t>(x))
 #define INT(x) (static_cast<int>(x))
 
-// machine constants
+// App name and window title
 static inline constexpr std::string_view WindowTitle = "ZX81 Emulator";
+
+// name of files
+static inline constexpr std::string_view DumpFilename 	= "zx81.dump";
+static inline constexpr std::string_view LPrintFilename = "zx81.txt";
+
+// machine constants
 static inline constexpr int MemSize  = 0x10000;
 static inline constexpr int NumRows  = 24;
 static inline constexpr int NumCols  = 32;

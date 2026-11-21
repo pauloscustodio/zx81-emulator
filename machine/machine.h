@@ -8,6 +8,7 @@
 
 #include "clock.h"
 #include "cpu.h"
+#include "files.h"
 #include "keyboard.h"
 #include "memory.h"
 #include "ports.h"
@@ -28,6 +29,7 @@ private:
     Clock clock;
     Traps traps;
     Cpu cpu;
+    Files files;
 
     // true while emulation is running; false to exit
     bool running = true;

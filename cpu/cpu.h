@@ -8,6 +8,7 @@
 
 #include "zx81.h"
 #include <string>
+#include <vector>
 
 class Memory;
 class Ports;
@@ -15,6 +16,8 @@ struct Clock;
 class Traps;
 struct _z80_cpu_context; // aka Z80EX_CONTEXT;
 
+static constexpr int RegistersSize =
+    4 * 2 + 4 * 2 + 2 * 2 + 2 * 2 + 3 + 1 + 2;
 struct Registers {
     word_t af = 0xffff, bc = 0xffff, de = 0xffff, hl = 0xffff;
     word_t af_ = 0xffff, bc_ = 0xffff, de_ = 0xffff, hl_ = 0xffff;
@@ -25,6 +28,10 @@ struct Registers {
     byte_t iff1 = 0, iff2 = 0;
 
     std::string to_string() const;
+
+    // pack in little-endian order
+    std::vector<byte_t> to_bytes() const;
+    void from_bytes(const std::vector<byte_t>& bytes);
 };
 
 class Cpu {

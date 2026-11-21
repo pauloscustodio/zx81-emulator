@@ -16,7 +16,9 @@
 #include <SDL.h>
 
 Machine::Machine()
-    : ports(keyboard), cpu(memory, ports, clock, traps) {
+    : ports(keyboard),
+      cpu(memory, ports, clock, traps),
+      files(cpu, memory, keyboard) {
 
     // init rom
     memory.add_rom(rom, sizeof(rom));
@@ -92,18 +94,38 @@ void Machine::handle_events() {
             // exit pause on any key press
             in_pause = false;
 
+            // Paste
             if (control && event.key.keysym.sym == SDLK_v) {
-                // Paste
                 char* text = SDL_GetClipboardText();
                 if (text) {
                     keyboard.paste(text);
                     SDL_free(text);
                 }
+                break;
             }
-            else {
-                // key pressed, update matrix
-                keyboard.handle_sdl_event(&event);
+
+            // dump state and exit
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                files.save_dump(DumpFilename.data());
+                running = false;
+                break;
             }
+
+            // dump state to file
+            if (event.key.keysym.sym == SDLK_F6) {
+                files.save_dump(DumpFilename.data());
+                break;
+            }
+
+            // load state from file
+            if (event.key.keysym.sym == SDLK_F7) {
+                files.load_dump(DumpFilename.data());
+                break;
+            }
+
+
+            // key pressed, update matrix
+            keyboard.handle_sdl_event(&event);
             break;
 
         case SDL_KEYUP:
@@ -117,7 +139,6 @@ void Machine::handle_events() {
             break;
         }
     }
-
 }
 
 // run a single screen-frame of emulation
@@ -221,7 +242,7 @@ void Machine::run_frame() {
 void Machine::render(Screen& screen) {
     word_t d_file = memory.read16(D_FILE);
     Registers regs = cpu.get_registers();
-    word_t charset_addr = regs.i << 8;
+    word_t charset_addr = TO_WORD(regs.i, 0x00);
     screen.render(memory, d_file, charset_addr);
 }
 

@@ -16,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 std::string Registers::to_string() const {
     std::ostringstream oss;
@@ -42,6 +43,93 @@ std::string Registers::to_string() const {
         << "  IFF2: " << static_cast<int>(iff2)
         << std::endl;
     return oss.str();
+}
+
+std::vector<byte_t> Registers::to_bytes() const {
+    std::vector<byte_t> bytes;
+    bytes.push_back(LOW_BYTE(af));
+    bytes.push_back(HIGH_BYTE(af));
+    bytes.push_back(LOW_BYTE(bc));
+    bytes.push_back(HIGH_BYTE(bc));
+    bytes.push_back(LOW_BYTE(de));
+    bytes.push_back(HIGH_BYTE(de));
+    bytes.push_back(LOW_BYTE(hl));
+    bytes.push_back(HIGH_BYTE(hl));
+    bytes.push_back(LOW_BYTE(af_));
+    bytes.push_back(HIGH_BYTE(af_));
+    bytes.push_back(LOW_BYTE(bc_));
+    bytes.push_back(HIGH_BYTE(bc_));
+    bytes.push_back(LOW_BYTE(de_));
+    bytes.push_back(HIGH_BYTE(de_));
+    bytes.push_back(LOW_BYTE(hl_));
+    bytes.push_back(HIGH_BYTE(hl_));
+    bytes.push_back(LOW_BYTE(ix));
+    bytes.push_back(HIGH_BYTE(ix));
+    bytes.push_back(LOW_BYTE(iy));
+    bytes.push_back(HIGH_BYTE(iy));
+    bytes.push_back(LOW_BYTE(pc));
+    bytes.push_back(HIGH_BYTE(pc));
+    bytes.push_back(LOW_BYTE(sp));
+    bytes.push_back(HIGH_BYTE(sp));
+    bytes.push_back(i);
+    bytes.push_back(r);
+    bytes.push_back(r7);
+    bytes.push_back(im);
+    bytes.push_back(iff1);
+    bytes.push_back(iff2);
+    return bytes;
+}
+
+void Registers::from_bytes(const std::vector<byte_t>& bytes) {
+    if (bytes.size() != RegistersSize) {
+        std::cerr << "Error: Invalid byte vector size for Registers" << std::endl;
+        return;
+    }
+
+    size_t index = 0;
+    byte_t high, low;
+    low = bytes[index++];
+    high = bytes[index++];
+    af = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    bc = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    de = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    hl = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    af_ = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    bc_ = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    de_ = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    hl_ = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    ix = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    iy = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    pc = TO_WORD(high, low);
+    low = bytes[index++];
+    high = bytes[index++];
+    sp = TO_WORD(high, low);
+    i = bytes[index++];
+    r = bytes[index++];
+    r7 = bytes[index++];
+    im = bytes[index++];
+    iff1 = bytes[index++];
+    iff2 = bytes[index++];
 }
 
 Cpu::Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps)

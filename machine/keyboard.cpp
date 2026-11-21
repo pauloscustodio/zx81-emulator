@@ -506,7 +506,7 @@ void Keyboard::handle_sdl_event(const SDL_Event* event) {
 
 byte_t Keyboard::in(word_t addr) {
     // high byte of the address has the selected row with bit=0
-    byte_t row = (byte_t)((addr >> 8) & 0xFF);
+    byte_t row = HIGH_BYTE(addr);
 
     // Note: key_state is 1 for key pressed, ROM is 0 for key pressed
     switch (row) {
@@ -600,7 +600,7 @@ word_t Keyboard::rom_keyboard_scan() {
         int done = (row & 0x80) == 0;
 
         row = (byte_t)((row << 1) | (row >> 7));
-        a = in(((word_t)row << 8) | 0xFE);
+        a = in(TO_WORD(row, 0xFE));
 
         if (done) {
             break;
@@ -615,7 +615,7 @@ word_t Keyboard::rom_keyboard_scan() {
         h = (byte_t)(h << 1);
     }
 
-    return ((word_t)h << 8) | l;
+    return TO_WORD(h, l);
 }
 
 void Keyboard::push_one_token(const char** p, int& mode, bool allow_keywords) {

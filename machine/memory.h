@@ -20,6 +20,10 @@ public:
     void write8(word_t addr, byte_t value);
     void write16(word_t addr, word_t value);
 
+    const byte_t* get_mem() const;
+    byte_t* get_mem();
+    size_t size() const;
+
 private:
     byte_t mem[MemSize] = { 0 };
     int rom_size = 0;

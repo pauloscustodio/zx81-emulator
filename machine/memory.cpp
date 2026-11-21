@@ -39,7 +39,9 @@ byte_t Memory::read8(word_t addr) const {
 }
 
 word_t Memory::read16(word_t addr) const {
-    return read8(addr) | (read8(addr + 1) << 8);
+    byte_t low = read8(addr);
+    byte_t high = read8(addr + 1);
+    return TO_WORD(high, low);
 }
 
 void Memory::write8(word_t addr, byte_t value) {
@@ -50,8 +52,20 @@ void Memory::write8(word_t addr, byte_t value) {
 }
 
 void Memory::write16(word_t addr, word_t value) {
-    write8(addr, value & 0xFF);
-    write8(addr + 1, (value >> 8) & 0xFF);
+    write8(addr, LOW_BYTE(value));
+    write8(addr + 1, HIGH_BYTE(value));
+}
+
+const byte_t* Memory::get_mem() const {
+    return mem;
+}
+
+byte_t* Memory::get_mem() {
+    return mem;
+}
+
+size_t Memory::size() const {
+    return sizeof(mem);
 }
 
 bool Memory::is_rom(word_t addr) const {
