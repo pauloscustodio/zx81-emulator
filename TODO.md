@@ -8,3 +8,5 @@ TODO
 - pressing the real keyboard aborts queue push
 - very long edit lines loose keys during paste
 - accept extended SAVE and LOAD commands from ZXpand
+- show keyboard map when F1 is pressed
+
