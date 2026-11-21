@@ -6,10 +6,12 @@
 
 #pragma once
 
+#include "memory.h"
 #include "zx81.h"
 #include <cstdint>
 #include <queue>
 #include <SDL.h>
+#include <string>
 
 // bit mask with 1 at each selected column of the 8 keyboard rows
 using  kbd_state_t = uint64_t;
@@ -156,10 +158,25 @@ public:
     void keyup(kbd_state_t key);
     void handle_sdl_event(const SDL_Event* event);
     byte_t in(word_t addr);
+    void scan(Memory& memory);
+    void paste(const std::string& text);
+    void paste_file(const std::string& filename);
 
 private:
-    kbd_state_t key_state;          // current state of the keys (pressed or not)
-    kbd_state_t
-    shift_state;        // current state of the shift key (pressed or not)
+    kbd_state_t key_state;          // current state of the keys
+    kbd_state_t shift_state;        // current state of the shift key
+
+    // time between key events in the queue, in milliseconds
+    static inline constexpr int QueueTimeMs = 20;
+
     std::queue<kbd_state_t> queue;  // keyboard queue for pasting
+    enum { Q_IDLE, Q_DOWN, Q_UP };  // queue state machine states
+    int q_state = Q_IDLE;           // current queue state
+    kbd_state_t last_key_pushed = 0;// last key pushed via queue
+    uint64_t q_event_ms = 0;        // time of last queue event
+
+    bool queue_busy() const;
+    void queue_tick();
+    word_t rom_keyboard_scan();
+    void push_one_token(const char** p, int& mode, bool allow_keywords);
 };

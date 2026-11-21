@@ -70,39 +70,54 @@ Machine::Machine()
 }
 
 void Machine::run() {
+    // creates window
     Screen screen;
 
     // run until stopped
     while (running) {
-        SDL_Event event;
-        while (running && SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_KEYDOWN:
-                // exit pause on any key press
-                in_pause = false;
-
-                // key pressed, update matrix
-                keyboard.handle_sdl_event(&event);
-                break;
-
-            case SDL_KEYUP:
-                // key released, update matrix
-                keyboard.handle_sdl_event(&event);
-                break;
-
-            case SDL_QUIT:
-                // quit the emulation
-                running = false;
-                break;
-            }
-        }
-
-        if (running) {
-            run_frame();
-        }
-
+        handle_events();
+        run_frame();
         render(screen);
     }
+
+    // destroys window when screen goes out of scope
+}
+
+void Machine::handle_events() {
+    SDL_Event event;
+    while (running && SDL_PollEvent(&event)) {
+        bool control = (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)) != 0;
+        switch (event.type) {
+        case SDL_KEYDOWN:
+            // exit pause on any key press
+            in_pause = false;
+
+            if (control && event.key.keysym.sym == SDLK_v) {
+                // Paste
+                char* text = SDL_GetClipboardText();
+                if (text) {
+                    keyboard.paste(text);
+                    SDL_free(text);
+                }
+            }
+            else {
+                // key pressed, update matrix
+                keyboard.handle_sdl_event(&event);
+            }
+            break;
+
+        case SDL_KEYUP:
+            // key released, update matrix
+            keyboard.handle_sdl_event(&event);
+            break;
+
+        case SDL_QUIT:
+            // quit the emulation
+            running = false;
+            break;
+        }
+    }
+
 }
 
 // run a single screen-frame of emulation
@@ -186,7 +201,10 @@ void Machine::run_frame() {
     frames |= 0x8000; // bit 15 must be set
     memory.write16(FRAMES, frames);
 
-    // TODO: read keyboard
+    // scan keyboard after computer initialized
+    if (init_finished) {
+        keyboard.scan(memory);
+    }
 
     // In SLOW mode, synchronize emulation to real time by delaying
     // until a complete video frame period has elapsed.

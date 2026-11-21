@@ -41,6 +41,7 @@ private:
     uint64_t pause_start_ms = 0;
     uint64_t pause_duration_ms = 0;
 
+    void handle_events();
     void run_frame();
     void render(Screen& screen);
     bool slow_mode() const;
