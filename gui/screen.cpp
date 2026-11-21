@@ -16,10 +16,12 @@ Screen::Screen() {
         die("SDL_Init failed: " + std::string(SDL_GetError()));
     }
 
-    window = SDL_CreateWindow(WindowTitle.data(), 512, 384, 0);
-    if (window == nullptr) {
-        die("Unable to create window: " + std::string(SDL_GetError()));
-    }
+    float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    window = SDL_CreateWindow(
+                 WindowTitle.data(),
+                 int(512 * scale),
+                 int(384 * scale),
+                 SDL_WINDOW_RESIZABLE);
 
     renderer = SDL_CreateRenderer(window, nullptr);
     if (renderer == nullptr) {
@@ -72,13 +74,15 @@ void Screen::render(const Memory& memory, word_t d_file, word_t charset_addr) {
 // creates a sdl surface with the zx81 character set
 void Screen::update_charset(const Memory& memory, word_t charset_addr) {
     // create a rgb surface to hold 256 8x8 characters
-    SDL_Surface* charset_rgb = SDL_CreateSurface(4096, 16, SDL_PIXELFORMAT_ARGB8888);
+    SDL_Surface* charset_rgb = SDL_CreateSurface(4096, 16,
+                               SDL_PIXELFORMAT_ARGB8888);
     if (charset_rgb == nullptr) {
         die("Unable to create RGB surface: " + std::string(SDL_GetError()));
     }
 
     // map black and white colors
-    const SDL_PixelFormatDetails* format_details = SDL_GetPixelFormatDetails(charset_rgb->format);
+    const SDL_PixelFormatDetails* format_details = SDL_GetPixelFormatDetails(
+                charset_rgb->format);
     if (format_details == nullptr) {
         SDL_DestroySurface(charset_rgb);
         die("Unable to get pixel format details: " + std::string(SDL_GetError()));
@@ -221,7 +225,24 @@ void Screen::update_screen(const Memory& memory, word_t d_file) {
     if (screen_dirty) {
         SDL_UpdateTexture(screen_texture, nullptr, screen->pixels, screen->pitch);
         SDL_RenderClear(renderer);
-        SDL_RenderTexture(renderer, screen_texture, nullptr, nullptr);
+
+        int w, h;
+        SDL_GetWindowSize(window, &w, &h);
+
+        // scale to multiples of 256x192
+        int scale = std::max(1, std::min(w / 256, h / 192));
+
+        SDL_FRect dest;
+        dest.w = float(scale * 256);
+        dest.h = float(scale * 192);
+        dest.x = (w - dest.w) / 2.0f;
+        dest.y = (h - dest.h) / 2.0f;
+
+        SDL_RenderTexture(renderer,
+                          screen_texture,
+                          nullptr,
+                          &dest);
+
         SDL_RenderPresent(renderer);
 
         screen_dirty = false;

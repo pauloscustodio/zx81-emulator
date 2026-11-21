@@ -116,7 +116,7 @@ void Machine::run() {
 
     // run until stopped
     while (running) {
-        handle_events();
+        handle_events(screen);
         run_frame();
         render(screen);
     }
@@ -136,11 +136,14 @@ void Machine::load_dump(const std::string& filename) {
     files.load_dump(filename);
 }
 
-void Machine::handle_events() {
+void Machine::handle_events(Screen& screen) {
     SDL_Event event;
     while (running && SDL_PollEvent(&event)) {
         bool control = (event.key.mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
         switch (event.type) {
+        case SDL_EVENT_WINDOW_RESIZED:
+            screen.set_dirty();
+            break;
         case SDL_EVENT_KEY_DOWN:
             // exit pause on any key press
             in_pause = false;

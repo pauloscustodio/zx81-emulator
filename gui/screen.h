@@ -16,6 +16,9 @@ public:
     virtual ~Screen();
 
     void render(const Memory& memory, word_t d_file, word_t charset_addr);
+    void set_dirty() {
+        screen_dirty = true;
+    }
 
 private:
     // SDL window and renderer
