@@ -4,10 +4,12 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
+#include "chars.h"
 #include "cpu.h"
 #include "files.h"
 #include "keyboard.h"
 #include "memory.h"
+#include "utils.h"
 #include "zx81.h"
 #include <fstream>
 #include <iostream>
@@ -16,6 +18,32 @@
 
 Files::Files(Cpu& cpu, Memory& memory, Keyboard& keyboard)
     : cpu(cpu), memory(memory), keyboard(keyboard) {
+}
+
+void Files::save_p(const std::string& filename) const {
+    std::ofstream ofs(filename, std::ios::binary);
+    if (!ofs) {
+        std::cerr << "Error: Unable to open file for writing: "
+                  << filename << std::endl;
+        return;
+    }
+
+    size_t start_addr = SAVE_ADDR;
+    size_t end_addr = memory.read16(E_LINE);
+    ofs.write(reinterpret_cast<const char*>(memory.get_mem() + start_addr),
+              end_addr - start_addr);
+}
+
+void Files::load_p(const std::string& filename) {
+    std::ifstream ifs(filename, std::ios::binary);
+    if (!ifs) {
+        std::cerr << "Error: Unable to open file for reading: "
+                  << filename << std::endl;
+        return;
+    }
+
+    size_t max_size = MemSize - SAVE_ADDR;
+    ifs.read(reinterpret_cast<char*>(memory.get_mem() + SAVE_ADDR), max_size);
 }
 
 void Files::save_dump(const std::string& filename) const {
@@ -51,4 +79,68 @@ void Files::load_dump(const std::string& filename) {
     Registers regs;
     regs.from_bytes(regs_bytes);
     cpu.set_registers(regs);
+}
+
+void Files::save_hook(Cpu& cpu) {
+    // collect file name
+    Registers regs = cpu.get_registers();
+    word_t addr = regs.hl;  // address of the program to save
+    std::string filename = read_filename(addr);
+
+    // save the program to a .p file
+    save_p(filename);
+
+    // jump to RET
+    cpu.exec_ret();
+}
+
+void Files::load_hook(Cpu& cpu) {
+    Registers regs = cpu.get_registers();
+    int addr = regs.de;
+    bool is_load_qq = (addr & 0x8000) != 0;     // LOAD ""
+
+    if (!next_load_filename.empty()) {
+        // load file from command line
+        load_p(next_load_filename);
+
+        // cancel load for next time
+        next_load_filename.clear();
+    }
+    else if (!is_load_qq) {
+        // LOAD "FILE"
+        std::string filename = read_filename(addr);
+        load_p(filename);
+    }
+    else {
+        // ignore LOAD ""
+    }
+
+    // jump to RET
+    cpu.exec_ret();
+}
+
+void Files::set_next_load_filename(const std::string& filename) {
+    next_load_filename = filename;
+}
+
+std::string Files::read_string(int addr) const {
+    std::string str;
+
+    // convert to string using zx81chars
+    for (int i = 0; ; i++) {
+        byte_t b = memory.read8(addr + i);
+        str += zx81chars[b & 0x7f];
+        if ((b & 0x80) != 0) {
+            break;
+        }
+    }
+
+    return str;
+}
+
+std::string Files::read_filename(int addr) const {
+    std::string filename = read_string(addr);
+    filename = str_tolower(filename);
+    filename += ".p";
+    return filename;
 }

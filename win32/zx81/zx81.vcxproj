@@ -160,6 +160,7 @@
     <ClInclude Include="..\..\debugger\symbols.h" />
     <ClInclude Include="..\..\getopt.h" />
     <ClInclude Include="..\..\gui\screen.h" />
+    <ClInclude Include="..\..\machine\chars.h" />
     <ClInclude Include="..\..\machine\clock.h" />
     <ClInclude Include="..\..\machine\files.h" />
     <ClInclude Include="..\..\machine\keyboard.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="..\..\debugger\symbols.cpp" />
     <ClCompile Include="..\..\getopt.cpp" />
     <ClCompile Include="..\..\gui\screen.cpp" />
+    <ClCompile Include="..\..\machine\chars.cpp" />
     <ClCompile Include="..\..\machine\clock.cpp" />
     <ClCompile Include="..\..\machine\files.cpp" />
     <ClCompile Include="..\..\machine\keyboard.cpp" />

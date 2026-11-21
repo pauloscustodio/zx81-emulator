@@ -7,4 +7,4 @@ TODO
 - add a line editing function
 - pressing the real keyboard aborts queue push
 - very long edit lines loose keys during paste
-
+- accept extended SAVE and LOAD commands from ZXpand

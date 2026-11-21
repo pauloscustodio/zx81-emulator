@@ -67,6 +67,16 @@ Machine::Machine()
         cpu.exec_ret();
     });
 
+    // SAVE and LOAD hooks
+    traps.add(NEXT_PROG, [this](Cpu & cpu) {
+        // LOAD routine after file name was parsed
+        files.load_hook(cpu);
+    });
+    traps.add(SAVE1, [this](Cpu & cpu) {
+        // SAVE routine after file name was parsed
+        files.save_hook(cpu);
+    });
+
     // reset the CPU
     cpu.reset();
 }
