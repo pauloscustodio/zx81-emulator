@@ -132,8 +132,16 @@ endif
 #------------------------------------------------------------------------------
 # test
 #------------------------------------------------------------------------------
-test: $(PROJ)$(EXESUFFIX)
+test: t/input/normal_font.asm t/input/bold_font.asm $(PROJ)$(EXESUFFIX)
 	$(PERL) -S prove t/*.t
+
+t/input/normal_font.asm: rom/zx81_edition3.rom tools/extract_font.pl Makefile
+	$(PERL) tools/extract_font.pl $< > $@
+	dos2unix $@
+
+t/input/bold_font.asm: rom/zx81_edition3.rom tools/make_bold_font.pl Makefile
+	$(PERL) tools/make_bold_font.pl $< > $@
+	dos2unix $@
 
 #------------------------------------------------------------------------------
 # tidy

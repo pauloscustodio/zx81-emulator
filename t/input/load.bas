@@ -1,0 +1,4 @@
+PRINT "LOADING HELLO"
+PAUSE 3*50
+LOAD "t/input/hello"
+#AUTOSTART=1
