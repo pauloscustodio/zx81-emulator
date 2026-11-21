@@ -18,7 +18,7 @@ void Printer::print(const std::string& text) {
 
 void Printer::print(byte_t b) {
     open_file();
-    ofs << zx81chars[b].data();
+    ofs << zx81chars[b];
     ofs.flush();
 }
 

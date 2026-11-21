@@ -4,6 +4,7 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
+#include "chars.h"
 #include "cpu.h"
 #include "machine.h"
 #include "memory.h"
@@ -14,6 +15,7 @@
 #include "utils.h"
 #include "zx81.h"
 #include <SDL.h>
+#include <string>
 
 Machine::Machine()
     : ports(keyboard),
@@ -96,6 +98,14 @@ Machine::Machine()
     traps.add(PRINT_A, lprint_trap);
     traps.add(PRINT_CH, lprint_trap);
     traps.add(PRINT_SP, lprint_trap);
+
+    // COPY trap
+    traps.add(COPY, [this](Cpu & cpu) {
+        // print the screen to the printer
+        std::string dump = get_screen_dump();
+        printer.print(dump);
+        cpu.exec_ret();
+    });
 
     // reset the CPU
     cpu.reset();
@@ -294,4 +304,19 @@ bool Machine::slow_mode() const {
 
 bool Machine::printer_active() const {
     return (memory.read8(FLAGS) & 2) != 0;
+}
+
+std::string Machine::get_screen_dump() const {
+    std::string dump;
+    word_t addr = memory.read16(D_FILE) + 1;
+    for (int row = 0; row < NumRows; row++) {
+        for (int col = 0; col < NumCols + 1; col++) {
+            byte_t ch = memory.read8(addr++);
+            dump += zx81chars[ch];
+            if (ch == 0x76) {
+                break;
+            }
+        }
+    }
+    return dump;
 }

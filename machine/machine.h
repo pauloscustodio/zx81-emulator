@@ -54,4 +54,5 @@ private:
     void render(Screen& screen);
     bool slow_mode() const;
     bool printer_active() const;
+    std::string get_screen_dump() const;
 };
