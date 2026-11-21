@@ -167,6 +167,7 @@
     <ClInclude Include="..\..\machine\machine.h" />
     <ClInclude Include="..\..\machine\memory.h" />
     <ClInclude Include="..\..\machine\ports.h" />
+    <ClInclude Include="..\..\machine\printer.h" />
     <ClInclude Include="..\..\machine\rom.h" />
     <ClInclude Include="..\..\machine\traps.h" />
     <ClInclude Include="..\..\options.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="..\..\machine\machine.cpp" />
     <ClCompile Include="..\..\machine\memory.cpp" />
     <ClCompile Include="..\..\machine\ports.cpp" />
+    <ClCompile Include="..\..\machine\printer.cpp" />
     <ClCompile Include="..\..\machine\traps.cpp" />
     <ClCompile Include="..\..\options.cpp" />
     <ClCompile Include="..\..\utils.cpp" />

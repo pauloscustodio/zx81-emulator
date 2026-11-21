@@ -12,6 +12,7 @@
 #include "keyboard.h"
 #include "memory.h"
 #include "ports.h"
+#include "printer.h"
 #include "screen.h"
 #include "traps.h"
 #include <cstdint>
@@ -30,6 +31,7 @@ private:
     Memory memory;
     Keyboard keyboard;
     Ports ports;
+    Printer printer;
     Clock clock;
     Traps traps;
     Cpu cpu;
@@ -51,4 +53,5 @@ private:
     void run_frame();
     void render(Screen& screen);
     bool slow_mode() const;
+    bool printer_active() const;
 };

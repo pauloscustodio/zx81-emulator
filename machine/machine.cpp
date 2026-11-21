@@ -83,6 +83,20 @@ Machine::Machine()
         files.save_hook(cpu);
     });
 
+    // LPRINT traps
+    auto lprint_trap = [this](Cpu & cpu) {
+        // LPRINT trap; A has the character to print
+        if (printer_active()) {
+            Registers regs = cpu.get_registers();
+            byte_t ch = HIGH_BYTE(regs.af);
+            printer.print(ch);
+            cpu.exec_ret();
+        }
+    };
+    traps.add(PRINT_A, lprint_trap);
+    traps.add(PRINT_CH, lprint_trap);
+    traps.add(PRINT_SP, lprint_trap);
+
     // reset the CPU
     cpu.reset();
 }
@@ -276,4 +290,8 @@ void Machine::render(Screen& screen) {
 
 bool Machine::slow_mode() const {
     return (memory.read8(CDFLAG) & SlowMode) != 0;
+}
+
+bool Machine::printer_active() const {
+    return (memory.read8(FLAGS) & 2) != 0;
 }

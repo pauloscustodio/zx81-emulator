@@ -11,3 +11,4 @@ build/
 *.o
 zx81.dump
 *.p
+zx81.txt
