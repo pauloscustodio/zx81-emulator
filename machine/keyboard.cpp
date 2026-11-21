@@ -464,6 +464,6 @@ void Keyboard::paste_file(const std::string& filename) {
 
     std::string text;
     while (std::getline(ifs, text)) {
-        paste(text);
+        paste(text + "\n");
     }
 }

@@ -93,6 +93,9 @@
     <ClInclude Include="..\..\machine\chars.h">
       <Filter>Header Files\machine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">

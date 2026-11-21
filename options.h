@@ -10,7 +10,7 @@
 #include <vector>
 
 struct Options {
-    bool debug = false;
+    //bool debug = false;
     bool slow = false;
 };
 
@@ -18,3 +18,4 @@ extern Options options;
 extern std::vector<std::string> args;
 
 void parse_cmd_line(int argc, char* argv[]);
+[[noreturn]] void exit_usage(void);

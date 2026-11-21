@@ -16,8 +16,8 @@
 #include <string>
 #include <vector>
 
-Files::Files(Cpu& cpu, Memory& memory, Keyboard& keyboard)
-    : cpu(cpu), memory(memory), keyboard(keyboard) {
+Files::Files(Cpu& cpu, Memory& memory)
+    : cpu(cpu), memory(memory) {
 }
 
 void Files::save_p(const std::string& filename) const {
@@ -97,30 +97,19 @@ void Files::save_hook(Cpu& cpu) {
 void Files::load_hook(Cpu& cpu) {
     Registers regs = cpu.get_registers();
     int addr = regs.de;
+
     bool is_load_qq = (addr & 0x8000) != 0;     // LOAD ""
-
-    if (!next_load_filename.empty()) {
-        // load file from command line
-        load_p(next_load_filename);
-
-        // cancel load for next time
-        next_load_filename.clear();
+    if (is_load_qq) {
+        return; // ignore LOAD ""
     }
-    else if (!is_load_qq) {
+    else {
         // LOAD "FILE"
         std::string filename = read_filename(addr);
         load_p(filename);
     }
-    else {
-        // ignore LOAD ""
-    }
 
     // jump to RET
     cpu.exec_ret();
-}
-
-void Files::set_next_load_filename(const std::string& filename) {
-    next_load_filename = filename;
 }
 
 std::string Files::read_string(int addr) const {

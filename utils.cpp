@@ -44,3 +44,13 @@ std::string str_replace_all(std::string str, const std::string& from,
     return str;
 }
 
+bool str_ends_with(const std::string& str, const std::string& ending) {
+    if (str.length() >= ending.length()) {
+        return (0 == str.compare(str.length() - ending.length(), ending.length(),
+                                 ending));
+    }
+    else {
+        return false;
+    }
+}
+

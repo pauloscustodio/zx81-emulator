@@ -18,7 +18,7 @@
 Machine::Machine()
     : ports(keyboard),
       cpu(memory, ports, clock, traps),
-      files(cpu, memory, keyboard) {
+      files(cpu, memory) {
 
     // init rom
     memory.add_rom(rom, sizeof(rom));
@@ -93,6 +93,18 @@ void Machine::run() {
     }
 
     // destroys window when screen goes out of scope
+}
+
+void Machine::paste(const std::string& text) {
+    keyboard.paste(text);
+}
+
+void Machine::paste_file(const std::string& filename) {
+    keyboard.paste_file(filename);
+}
+
+void Machine::load_dump(const std::string& filename) {
+    files.load_dump(filename);
 }
 
 void Machine::handle_events() {

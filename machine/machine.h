@@ -15,12 +15,16 @@
 #include "screen.h"
 #include "traps.h"
 #include <cstdint>
+#include <string>
 
 class Machine {
 public:
     explicit Machine();
 
     void run();
+    void paste(const std::string& text);
+    void paste_file(const std::string& filename);
+    void load_dump(const std::string& filename);
 
 private:
     Memory memory;

@@ -7,14 +7,16 @@
 #include "getopt.h"
 #include "options.h"
 #include <iostream>
+#include <string>
+#include <vector>
 
 Options options;
 std::vector<std::string> args;
 
-static void exit_usage(void) {
+[[noreturn]] void exit_usage(void) {
     std::cerr << "Usage: zx81 [-d] [-s]" << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  -d    Start debugger" << std::endl;
+    //std::cerr << "  -d    Start debugger" << std::endl;
     std::cerr << "  -s    Slow mode" << std::endl;
     exit(EXIT_FAILURE);
 }
@@ -26,9 +28,11 @@ void parse_cmd_line(int argc, char* argv[]) {
             break;
         }
         switch (c) {
+        /*
         case 'd':
             options.debug = true;
             break;
+        */
         case 's':
             options.slow = true;
             break;
@@ -37,7 +41,7 @@ void parse_cmd_line(int argc, char* argv[]) {
         }
     }
 
-    for (int i = optind; i<argc; i++){
+    for (int i = optind; i < argc; i++) {
         args.push_back(argv[i]);
     }
 }

@@ -13,7 +13,7 @@
 
 class Files {
 public:
-    explicit Files(Cpu& cpu, Memory& memory, Keyboard& keyboard);
+    explicit Files(Cpu& cpu, Memory& memory);
 
     // save and load .p files
     void save_p(const std::string& filename) const;
@@ -27,14 +27,9 @@ public:
     void save_hook(Cpu& cpu);
     void load_hook(Cpu& cpu);
 
-    // accept a filename to be loaded on the next LOAD ""
-    void set_next_load_filename(const std::string& filename);
-
 private:
     Cpu& cpu;
     Memory& memory;
-    Keyboard& keyboard;
-    std::string next_load_filename;
 
     // read string from memory at addr until an inverted character
     std::string read_string(int addr) const;

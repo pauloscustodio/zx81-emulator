@@ -169,6 +169,7 @@
     <ClInclude Include="..\..\machine\ports.h" />
     <ClInclude Include="..\..\machine\rom.h" />
     <ClInclude Include="..\..\machine\traps.h" />
+    <ClInclude Include="..\..\options.h" />
     <ClInclude Include="..\..\utils.h" />
     <ClInclude Include="..\..\zx81.h" />
   </ItemGroup>
