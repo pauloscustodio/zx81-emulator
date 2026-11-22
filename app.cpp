@@ -48,7 +48,7 @@ void App::parse_cmd_line(int argc, char* argv[]) {
 
 void App::configure() {
     if (!headless_mode) {
-        screen = std::make_unique<Screen>(clock, *machine, debug_server);
+        screen = std::make_unique<Screen>(*machine);
     }
 
     machine->set_master_slow_mode(slow_mode);

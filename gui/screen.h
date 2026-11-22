@@ -14,7 +14,7 @@
 
 class Screen {
 public:
-    explicit Screen(Clock& clock, Machine& machine, DebugServer& debug_server);
+    explicit Screen(Machine& machine);
     virtual ~Screen();
 
     bool is_running() const;
@@ -24,9 +24,7 @@ public:
 private:
     static inline constexpr int DockOverlap = 11;
 
-    Clock& clock;
     Machine& machine;
-    DebugServer& debug_server;
     bool running = true;
 
     // SDL window, renderer and texture for the main screen

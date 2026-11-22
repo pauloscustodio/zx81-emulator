@@ -21,8 +21,9 @@
 #undef min
 #undef max
 
-Screen::Screen(Clock& clock, Machine& machine, DebugServer& debug_server)
-    : clock(clock), machine(machine), debug_server(debug_server) {
+Screen::Screen(Machine& machine)
+    : machine(machine) {
+
     // initialize SDL
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         die("SDL_Init failed: " + std::string(SDL_GetError()));
