@@ -7,20 +7,24 @@ use ZX81::Tape qw(make_p);
 
 my $NUM_TERMS = 10;    # stress test with 220
 
+my $headless = $ENV{ZX81_HEADLESS} // 0;
+my @cmd      = ('zx81');
+push @cmd, '-h' if $headless;
+
 # load program via .p
 my $sum = make_bas_file( "$test.1.bas", "#AUTOSTART=1" );
 make_p( "$test.1.bas", "$test.1.p" );
 ok -s "$test.1.p" < 0x8000 - 0x4009, "$test.1.p size " . ( -s "$test.1.p" );
 
 unlink "zx81.txt";
-run_ok("zx81 $test.1.p");
+run_ok("@cmd $test.1.p");
 my $computed_sum = 0 + ( path("zx81.txt")->slurp );
 is $computed_sum, $sum, "computed sum $sum";
 
 # load program via paste
 $sum = make_bas_file( "$test.2.bas", "RUN" );
 unlink "zx81.txt";
-run_ok("zx81 $test.2.bas");
+run_ok("@cmd $test.2.bas");
 $computed_sum = 0 + ( path("zx81.txt")->slurp );
 is $computed_sum, $sum, "computed sum $sum";
 

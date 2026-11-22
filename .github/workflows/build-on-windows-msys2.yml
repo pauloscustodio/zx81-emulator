@@ -53,4 +53,4 @@ jobs:
         make
     - name: Run tests
       run: |
-        make test
+        ZX81_HEADLESS=1 make test

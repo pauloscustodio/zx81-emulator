@@ -5,9 +5,13 @@ BEGIN { use lib 't'; require 'testlib.pl'; }
 use Modern::Perl;
 use ZX81::Tape qw(make_p dump_p);
 
+my $headless = $ENV{ZX81_HEADLESS} // 0;
+my @cmd      = ('zx81');
+push @cmd, '-h' if $headless;
+
 make_p( "t/input/save.bas", "t/input/save.p" );
 unlink "save.p";
-run_ok("zx81 t/input/save.p");    # creates save.p
+run_ok("@cmd t/input/save.p");    # creates save.p
 dump_p( "save.p", "$test.txt" );
 my @dump = grep { !/FRAMES/ } path("$test.txt")->lines();
 path("$test.txt")->spew(@dump);
