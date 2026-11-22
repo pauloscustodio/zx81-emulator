@@ -12,10 +12,7 @@
 
 void DebugServer::start(uint16_t port) {
     // setup socket server for debugger
-#ifdef _WIN32
-    WSADATA wsa;
-    WSAStartup(MAKEWORD(2, 2), &wsa);
-#endif
+    init_socket_runtime();
 
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -28,7 +25,7 @@ void DebugServer::start(uint16_t port) {
     listen(listen_fd, 1);
 
     // make it non-blocking
-    make_socket_non_blocking(listen_fd);
+    set_socket_non_blocking(listen_fd);
 
     std::cout << "Debugger server listening on port " << port << std::endl;
 }
@@ -45,7 +42,7 @@ void DebugServer::poll(Machine& debugger) {
 
         if (client_fd != invalid_socket) {
             // make it non-blocking
-            make_socket_non_blocking(client_fd);
+            set_socket_non_blocking(client_fd);
             send("Welcome to the ZX81 Emulator Debugger!\n> ");
         }
     }
@@ -69,11 +66,7 @@ void DebugServer::poll(Machine& debugger) {
         }
         else if (bytes_received == 0) {
             std::cout << "Debugger disconnected\n";
-#ifdef _WIN32
-            closesocket(client_fd);
-#else
-            close(client_fd);
-#endif
+            close_socket(client_fd);
             client_fd = invalid_socket;
         }
     }
@@ -100,11 +93,3 @@ void DebugServer::send(const std::string& text) {
     }
 }
 
-void DebugServer::make_socket_non_blocking(socket_t sock) {
-#ifdef _WIN32
-    u_long mode = 1;
-    ioctlsocket(sock, FIONBIO, &mode);
-#else
-    fcntl(sock, F_SETFL, O_NONBLOCK);
-#endif
-}

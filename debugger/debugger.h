@@ -6,33 +6,9 @@
 
 #pragma once
 
+#include "system.h"
 #include <cstdint>
 #include <string>
-
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-
-#ifdef _MSC_VER
-#pragma comment(lib, "ws2_32.lib")
-#endif
-#else
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#endif
-
-#ifdef _WIN32
-using socket_t = SOCKET;
-using socket_size_t = int;
-constexpr socket_t invalid_socket = INVALID_SOCKET;
-#else
-using socket_t = int;
-using socket_size_t = ssize_t;
-constexpr socket_t invalid_socket = -1;
-#endif
 
 class Machine;
 
@@ -45,6 +21,4 @@ public:
 private:
     socket_t listen_fd = invalid_socket;
     socket_t client_fd = invalid_socket;
-
-    void make_socket_non_blocking(socket_t sock);
 };

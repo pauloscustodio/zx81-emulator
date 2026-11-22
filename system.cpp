@@ -21,6 +21,30 @@ void sleep_ms(Milliseconds ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
+void init_socket_runtime() {
+#ifdef _WIN32
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
+#endif
+}
+
+void close_socket(socket_t sock) {
+#ifdef _WIN32
+    closesocket(sock);
+#else
+    close(sock);
+#endif
+}
+
+void set_socket_non_blocking(socket_t sock) {
+#ifdef _WIN32
+    u_long mode = 1;
+    ioctlsocket(sock, FIONBIO, &mode);
+#else
+    fcntl(sock, F_SETFL, O_NONBLOCK);
+#endif
+}
+
 std::string find_file_case(const std::string& path) {
     // Split path into directory and filename
     std::string dirname = get_directory(path);
@@ -69,4 +93,3 @@ std::string find_file_case(const std::string& path) {
 
     return "";
 }
-
