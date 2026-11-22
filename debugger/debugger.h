@@ -34,16 +34,12 @@ using socket_size_t = ssize_t;
 constexpr socket_t invalid_socket = -1;
 #endif
 
-class IDebugger {
-public:
-    virtual ~IDebugger() = default;
-    virtual std::string debugger_command(const std::string& command) = 0;
-};
+class Machine;
 
 class DebugServer {
 public:
     void start(uint16_t port);
-    void poll(IDebugger& debugger);
+    void poll(Machine& debugger);
     void send(const std::string& text);
 
 private:

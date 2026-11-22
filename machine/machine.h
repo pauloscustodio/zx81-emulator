@@ -18,10 +18,9 @@
 #include <string>
 #include "zx81.h"
 
-class Machine : public IDebugger {
+class Machine {
 public:
     explicit Machine(Clock& clock);
-    virtual ~Machine() = default;
 
     void run_frame();
     Milliseconds frame_budget_ms() const;
@@ -37,7 +36,7 @@ public:
     void load_dump(const std::string& filename);
     void set_master_slow_mode(bool enable);
     bool is_running() const;
-    virtual std::string debugger_command(const std::string& command) override;
+    std::string debugger_command(const std::string& command);
 
 private:
     Clock& clock;

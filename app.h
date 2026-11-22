@@ -17,7 +17,6 @@
 class App {
 public:
     App();
-    virtual ~App() = default;
 
     void parse_cmd_line(int argc, char* argv[]);
     void configure();

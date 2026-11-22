@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------------
 
 #include "debugger.h"
+#include "machine.h"
 #include "utils.h"
 #include <iostream>
 #include <string>
@@ -32,7 +33,7 @@ void DebugServer::start(uint16_t port) {
     std::cout << "Debugger server listening on port " << port << std::endl;
 }
 
-void DebugServer::poll(IDebugger& debugger) {
+void DebugServer::poll(Machine& debugger) {
     if (listen_fd == invalid_socket) {
         return;
     }
