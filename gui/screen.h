@@ -17,7 +17,9 @@ public:
     explicit Screen(Clock& clock, Machine& machine, DebugServer& debug_server);
     virtual ~Screen();
 
-    void run();
+    bool is_running() const;
+    void handle_events();
+    void render();
 
 private:
     static inline constexpr int DockOverlap = 11;
@@ -54,8 +56,6 @@ private:
     byte_t last_screen[NumRows][NumCols];
     bool screen_dirty = true;
 
-    void handle_events();
-    void render();
     void update_charset(const byte_t* charset_buffer, bool chr128_mode);
     void update_screen(const byte_t* frame_buffer);
     void snap_windows();

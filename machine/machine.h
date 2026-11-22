@@ -18,17 +18,12 @@
 #include <string>
 #include "zx81.h"
 
-enum class MachineEvent {
-    None,
-    Exit,
-};
-
 class Machine : public IDebugger {
 public:
     explicit Machine(Clock& clock);
     virtual ~Machine() = default;
 
-    MachineEvent run_frame();
+    void run_frame();
     Milliseconds frame_budget_ms() const;
     std::string get_screen_dump() const;
     const byte_t* get_frame_buffer() const;
@@ -40,7 +35,8 @@ public:
     void paste_file(const std::string& filename);
     void save_dump(const std::string& filename) const;
     void load_dump(const std::string& filename);
-
+    void set_master_slow_mode(bool enable);
+    bool is_running() const;
     virtual std::string debugger_command(const std::string& command) override;
 
 private:
@@ -62,9 +58,14 @@ private:
     Milliseconds pause_start_ms = 0;
     Milliseconds pause_duration_ms = 0;
 
-    // detect that the exit hook was called
-    bool exit_hook_called = false;
+    // machine state
+    bool running = true;
 
+    // current SLOW/FAST mode based on CDFLAG
     bool slow_mode() const;
+
+    // master slow mode based on the command line option -s
+    bool master_slow_mode = false;
+
     bool printer_active() const;
 };

@@ -109,32 +109,8 @@ Screen::~Screen() {
     SDL_Quit();
 }
 
-void Screen::run() {
-    // run until stopped
-    while (running) {
-        // Measure the start of the host video frame.
-        // In SLOW mode we use wall-clock synchronization so that one
-        // emulated frame takes exactly 1/RefreshHz seconds in real time.
-        Milliseconds start = clock.get_elapsed_ms();
-
-        handle_events();
-        MachineEvent event = machine.run_frame();
-        if (event == MachineEvent::Exit) {
-            running = false;
-        }
-
-        render();
-        debug_server.poll(machine);
-
-        // sleep if needed to maintain the frame rate in SLOW mode
-        Milliseconds budget = machine.frame_budget_ms();
-        if (budget > 0) {
-            Milliseconds elapsed = clock.get_elapsed_ms() - start;
-            if (elapsed < budget) {
-                sleep_ms(budget - elapsed);
-            }
-        }
-    }
+bool Screen::is_running() const {
+    return running;
 }
 
 void Screen::handle_events() {

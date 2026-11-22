@@ -10,9 +10,7 @@
 #include "keyboard.h"
 #include "machine.h"
 #include "memory.h"
-#include "options.h"
 #include "rom.h"
-#include "screen.h"
 #include "system.h"
 #include "traps.h"
 #include "utils.h"
@@ -36,7 +34,7 @@ Machine::Machine(Clock& clock)
 
     // exit emulation if EXIT_HOOK is called
     traps.add(EXIT_HOOK, [this](Cpu & cpu) {
-        exit_hook_called = true;
+        running = false;
         cpu.exec_ret();
     });
 
@@ -115,17 +113,17 @@ Machine::Machine(Clock& clock)
 }
 
 // run a single screen-frame of emulation
-MachineEvent Machine::run_frame() {
+void Machine::run_frame() {
     // Execute one frame worth of Z80 clock cycles.
     // In SLOW mode this matches the real ZX81 timing.
     // In FAST mode a larger value may be used to accelerate execution.
-    Cycles ticks_per_frame = slow_mode() && options.slow ?
+    Cycles ticks_per_frame = slow_mode() && master_slow_mode ?
                              ClocksPerFrameSlow :
                              ClocksPerFrameFast;
 
     Cycles start_ticks = clock.get_ticks();
 
-    while (!exit_hook_called && clock.get_ticks() - start_ticks < ticks_per_frame) {
+    while (running && clock.get_ticks() - start_ticks < ticks_per_frame) {
 
         // Handle the ZX81 PAUSE command.
         //
@@ -194,12 +192,10 @@ MachineEvent Machine::run_frame() {
     if (init_finished) {
         keyboard.scan(clock.get_elapsed_ms(), memory);
     }
-
-    return exit_hook_called ? MachineEvent::Exit : MachineEvent::None;
 }
 
 Milliseconds Machine::frame_budget_ms() const {
-    if (slow_mode() && options.slow) {
+    if (slow_mode() && master_slow_mode) {
         return 1000 / RefreshHz;
     }
 
@@ -274,6 +270,14 @@ void Machine::load_dump(const std::string& filename) {
     files.load_dump(filename);
 }
 
+void Machine::set_master_slow_mode(bool enable) {
+    master_slow_mode = enable;
+}
+
+bool Machine::is_running() const {
+    return running;
+}
+
 std::string Machine::debugger_command(const std::string& command_) {
     std::string command = str_trim(command_);
     if (command.empty()) {
@@ -291,7 +295,7 @@ std::string Machine::debugger_command(const std::string& command_) {
     }
 
     if (command == "quit") {
-        exit_hook_called = true;
+        running = false;
         return "";
     }
 
