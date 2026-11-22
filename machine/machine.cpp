@@ -289,6 +289,7 @@ std::string Machine::debugger_command(const std::string& command_) {
                "  help   - Show this help message\n"
                "  quit   - Quit the debugger\n"
                "  regs   - Show CPU registers\n"
+               "  type   - Type text on the machine\n"
                ;
         //"  mem    - Dump memory contents\n"
         //"  screen - Dump screen contents\n"
@@ -302,6 +303,12 @@ std::string Machine::debugger_command(const std::string& command_) {
     if (command == "regs") {
         Registers regs = cpu.get_registers();
         return regs.to_string();
+    }
+
+    if (str_starts_with(command, "type ")) {
+        std::string text = command.substr(5);
+        paste(text + "\n");
+        return "";
     }
 
     /*

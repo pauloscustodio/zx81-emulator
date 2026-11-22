@@ -14,9 +14,8 @@ int main(int argc, char* argv[]) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    // too large for the stack, need to allocate on the heap
-    auto app = std::make_unique<App>();
-    app->parse_cmd_line(argc, argv);
-    app->configure();
-    app->run();
+    App app;
+    app.parse_cmd_line(argc, argv);
+    app.configure();
+    app.run();
 }

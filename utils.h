@@ -26,4 +26,5 @@ std::string str_tolower(std::string str);
 std::string str_replace_all(std::string str, const std::string& from,
                             const std::string& to);
 bool str_ends_with(const std::string& str, const std::string& ending);
+bool str_starts_with(const std::string& str, const std::string& starting);
 std::string str_trim(std::string str);

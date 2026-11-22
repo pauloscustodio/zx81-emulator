@@ -54,6 +54,15 @@ bool str_ends_with(const std::string& str, const std::string& ending) {
     }
 }
 
+bool str_starts_with(const std::string& str, const std::string& starting) {
+    if (str.length() >= starting.length()) {
+        return (0 == str.compare(0, starting.length(), starting));
+    }
+    else {
+        return false;
+    }
+}
+
 std::string str_trim(std::string str) {
     while (!str.empty() && isspace(str.back())) {
         str.pop_back();
