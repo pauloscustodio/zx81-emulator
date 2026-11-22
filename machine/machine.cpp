@@ -6,6 +6,7 @@
 
 #include "chars.h"
 #include "cpu.h"
+#include "debugger.h"
 #include "machine.h"
 #include "memory.h"
 #include "options.h"
@@ -110,7 +111,7 @@ Machine::Machine()
     cpu.reset();
 }
 
-void Machine::run() {
+void Machine::run(DebugServer& debug_server) {
     // creates window
     Screen screen;
 
@@ -119,6 +120,7 @@ void Machine::run() {
         handle_events(screen);
         run_frame();
         render(screen);
+        debug_server.poll(*this);
     }
 
     // destroys window when screen goes out of scope
@@ -134,6 +136,44 @@ void Machine::paste_file(const std::string& filename) {
 
 void Machine::load_dump(const std::string& filename) {
     files.load_dump(filename);
+}
+
+std::string Machine::debugger_command(const std::string& command_) {
+    std::string command = str_trim(command_);
+    if (command.empty()) {
+        return "";
+    }
+
+    if (command == "help") {
+        return "Available commands:\n"
+               "  help   - Show this help message\n"
+               "  quit   - Quit the debugger\n"
+               "  regs   - Show CPU registers\n"
+               ;
+        //"  mem    - Dump memory contents\n"
+        //"  screen - Dump screen contents\n"
+    }
+
+    if (command == "quit") {
+        Registers regs = cpu.get_registers();
+        return regs.to_string();
+    }
+
+    if (command == "regs") {
+        Registers regs = cpu.get_registers();
+        return regs.to_string();
+    }
+
+    /*
+    else if (command == "mem") {
+        return memory.dump();
+    }
+    else if (command == "screen") {
+        return get_screen_dump();
+    }
+    else
+    */
+    return "Unknown command: '" + command + "'";
 }
 
 void Machine::handle_events(Screen& screen) {

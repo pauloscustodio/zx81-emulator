@@ -54,3 +54,9 @@ bool str_ends_with(const std::string& str, const std::string& ending) {
     }
 }
 
+std::string str_trim(std::string str) {
+    while (!str.empty() && isspace(str.back())) {
+        str.pop_back();
+    }
+    return str;
+}

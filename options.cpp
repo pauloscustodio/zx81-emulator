@@ -23,16 +23,14 @@ std::vector<std::string> args;
 
 void parse_cmd_line(int argc, char* argv[]) {
     while (true) {
-        int c = mygetopt(argc, argv, "ds");
+        int c = mygetopt(argc, argv, "d:s");
         if (c == -1) {
             break;
         }
         switch (c) {
-        /*
         case 'd':
-            options.debug = true;
+            options.debug_port = std::stoi(optarg);
             break;
-        */
         case 's':
             options.slow = true;
             break;

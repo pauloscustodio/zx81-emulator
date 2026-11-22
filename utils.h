@@ -28,6 +28,7 @@ std::string str_tolower(std::string str);
 std::string str_replace_all(std::string str, const std::string& from,
                             const std::string& to);
 bool str_ends_with(const std::string& str, const std::string& ending);
+std::string str_trim(std::string str);
 
 inline void SDL_Delay64(uint64_t delay) {
     SDL_Delay(static_cast<uint32_t>(delay));

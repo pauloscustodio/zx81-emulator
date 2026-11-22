@@ -10,7 +10,7 @@
 #include <vector>
 
 struct Options {
-    //bool debug = false;
+    int debug_port = -1;
     bool slow = false;
 };
 

@@ -8,6 +8,7 @@
 
 #include "clock.h"
 #include "cpu.h"
+#include "debugger.h"
 #include "files.h"
 #include "keyboard.h"
 #include "memory.h"
@@ -18,14 +19,16 @@
 #include <cstdint>
 #include <string>
 
-class Machine {
+class Machine : public IDebugger {
 public:
     explicit Machine();
+    virtual ~Machine() = default;
 
-    void run();
+    void run(DebugServer& debug_server);
     void paste(const std::string& text);
     void paste_file(const std::string& filename);
     void load_dump(const std::string& filename);
+    virtual std::string debugger_command(const std::string& command) override;
 
 private:
     Memory memory;

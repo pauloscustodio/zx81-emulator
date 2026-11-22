@@ -14,10 +14,10 @@
 // SDL.h defines its own main; remove the definition
 #undef main
 
-// make machine static to avoid large stack warning
-static Machine machine;
-
 int main(int argc, char* argv[]) {
+    static Machine machine;
+    static DebugServer debug_server;
+
     // avoid that the windows subsystem buffers stdout and stderr,
     // which causes the output to be delayed
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -55,6 +55,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // start debugger server if requested
+    if (options.debug_port != -1) {
+        debug_server.start(options.debug_port);
+    }
+
     // run emulation
-    machine.run();
+    machine.run(debug_server);
 }
