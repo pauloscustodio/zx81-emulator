@@ -61,8 +61,11 @@ FLAGS	= -O3 -MMD -Wall -Werror \
 		  $(OPTS)
 CFLAGS	= -std=c11 $(FLAGS)
 CXXFLAGS= -std=c++20 $(FLAGS)
-LDFLAGS = -lws2_32 \
-		  $(filter-out -lSDL3main,$(shell pkg-config --libs sdl3 sdl3-image))
+
+LDFLAGS = $(filter-out -lSDL3main,$(shell pkg-config --libs sdl3 sdl3-image))
+ifeq ($(OS),Windows_NT)
+    LDFLAGS += -lws2_32
+endif
 
 #------------------------------------------------------------------------------
 # target files
