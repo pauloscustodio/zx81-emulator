@@ -4,19 +4,21 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
+#include "debugger.h"
 #include "machine.h"
 #include "options.h"
 #include "utils.h"
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <string>
 
 // SDL.h defines its own main; remove the definition
 #undef main
 
 int main(int argc, char* argv[]) {
-    static Machine machine;
-    static DebugServer debug_server;
+    auto machine = std::make_unique<Machine>();
+    auto debug_server = std::make_unique<DebugServer>();
 
     // avoid that the windows subsystem buffers stdout and stderr,
     // which causes the output to be delayed
@@ -39,15 +41,15 @@ int main(int argc, char* argv[]) {
             // push LOAD "filename" to keyboard queue
             std::string command = "LOAD \"" + filename.substr(0,
                                   filename.size() - 2) + "\"\n";
-            machine.paste(command);
+            machine->paste(command);
         }
         else if (str_ends_with(filename, ".dump")) {
             // load dump file
-            machine.load_dump(filename);
+            machine->load_dump(filename);
         }
         else if (str_ends_with(filename, ".bas")) {
             // push file to keyboard queue
-            machine.paste_file(filename);
+            machine->paste_file(filename);
         }
         else {
             std::cerr << "Error: Invalid file extension: " << filename << std::endl;
@@ -57,9 +59,9 @@ int main(int argc, char* argv[]) {
 
     // start debugger server if requested
     if (options.debug_port != -1) {
-        debug_server.start(options.debug_port);
+        debug_server->start(options.debug_port);
     }
 
     // run emulation
-    machine.run(debug_server);
+    machine->run(*debug_server);
 }
