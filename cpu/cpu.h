@@ -12,7 +12,7 @@
 
 class Memory;
 class Ports;
-struct Clock;
+class Clock;
 class Traps;
 struct _z80_cpu_context; // aka Z80EX_CONTEXT;
 

@@ -6,10 +6,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include <iostream>
 #include <string>
-#include <SDL3/SDL.h>
 
 #define release_assert(expr) do { \
         if (!(expr)) { \
@@ -29,7 +27,3 @@ std::string str_replace_all(std::string str, const std::string& from,
                             const std::string& to);
 bool str_ends_with(const std::string& str, const std::string& ending);
 std::string str_trim(std::string str);
-
-inline void SDL_Delay64(uint64_t delay) {
-    SDL_Delay(static_cast<uint32_t>(delay));
-}

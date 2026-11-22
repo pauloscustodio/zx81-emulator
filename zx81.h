@@ -32,6 +32,8 @@ static inline constexpr std::string_view KeyboardFilename = "keyboard.png";
 static inline constexpr int MemSize  = 0x10000;
 static inline constexpr int NumRows  = 24;
 static inline constexpr int NumCols  = 32;
+static inline constexpr int NumChars64 = 64;
+static inline constexpr int NumChars128 = 128;
 static inline constexpr int SlowMode = 0x40;
 static inline constexpr int FastMode = 0x00;
 

@@ -1,5 +1,7 @@
 TODO
 ====
+- split Screen from Application
+- move socket code to system.cpp
 - run a headless emulator
 - allow single-stepping of BASIC program, 
   inspection and change of BASIC variables

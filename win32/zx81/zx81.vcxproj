@@ -165,15 +165,16 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\clock.h" />
     <ClInclude Include="..\..\cpu\cpu.h" />
     <ClInclude Include="..\..\cpu\disasm.h" />
     <ClInclude Include="..\..\debugger\consts.h" />
     <ClInclude Include="..\..\debugger\debugger.h" />
     <ClInclude Include="..\..\debugger\symbols.h" />
     <ClInclude Include="..\..\getopt.h" />
+    <ClInclude Include="..\..\gui\keymap.h" />
     <ClInclude Include="..\..\gui\screen.h" />
     <ClInclude Include="..\..\machine\chars.h" />
-    <ClInclude Include="..\..\machine\clock.h" />
     <ClInclude Include="..\..\machine\files.h" />
     <ClInclude Include="..\..\machine\keyboard.h" />
     <ClInclude Include="..\..\machine\machine.h" />
@@ -183,18 +184,20 @@
     <ClInclude Include="..\..\machine\rom.h" />
     <ClInclude Include="..\..\machine\traps.h" />
     <ClInclude Include="..\..\options.h" />
+    <ClInclude Include="..\..\system.h" />
     <ClInclude Include="..\..\utils.h" />
     <ClInclude Include="..\..\zx81.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\clock.cpp" />
     <ClCompile Include="..\..\cpu\cpu.cpp" />
     <ClCompile Include="..\..\cpu\disasm.cpp" />
     <ClCompile Include="..\..\debugger\debugger.cpp" />
     <ClCompile Include="..\..\debugger\symbols.cpp" />
     <ClCompile Include="..\..\getopt.cpp" />
+    <ClCompile Include="..\..\gui\keymap.cpp" />
     <ClCompile Include="..\..\gui\screen.cpp" />
     <ClCompile Include="..\..\machine\chars.cpp" />
-    <ClCompile Include="..\..\machine\clock.cpp" />
     <ClCompile Include="..\..\machine\files.cpp" />
     <ClCompile Include="..\..\machine\keyboard.cpp" />
     <ClCompile Include="..\..\machine\machine.cpp" />
@@ -203,6 +206,7 @@
     <ClCompile Include="..\..\machine\printer.cpp" />
     <ClCompile Include="..\..\machine\traps.cpp" />
     <ClCompile Include="..\..\options.cpp" />
+    <ClCompile Include="..\..\system.cpp" />
     <ClCompile Include="..\..\utils.cpp" />
     <ClCompile Include="..\..\zx81.cpp" />
   </ItemGroup>

@@ -162,7 +162,7 @@ void Cpu::step() {
 
     // then execute the next instruction
     int ticks = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
-    clock.ticks += ticks;
+    clock.add_ticks(ticks);
 }
 
 void Cpu::exec_ret() {

@@ -4,4 +4,9 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
-#include "clock.h"
+#pragma once
+
+#include "keyboard.h"
+#include <SDL3/SDL.h>
+
+kbd_state_t sdlk2kbd(SDL_Keycode sym, SDL_Keymod mod);

@@ -4,21 +4,25 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
+#include "clock.h"
 #include "debugger.h"
 #include "machine.h"
 #include "options.h"
+#include "screen.h"
 #include "utils.h"
 #include <cstdio>
 #include <iostream>
 #include <memory>
 #include <string>
 
-// SDL.h defines its own main; remove the definition
-#undef main
-
 int main(int argc, char* argv[]) {
-    auto machine = std::make_unique<Machine>();
-    auto debug_server = std::make_unique<DebugServer>();
+    Clock clock;
+
+    // too large for the stack, need to allocate on the heap
+    auto machine = std::make_unique<Machine>(clock);
+
+    DebugServer debug_server;
+    Screen screen(clock, *machine, debug_server);
 
     // avoid that the windows subsystem buffers stdout and stderr,
     // which causes the output to be delayed
@@ -59,9 +63,9 @@ int main(int argc, char* argv[]) {
 
     // start debugger server if requested
     if (options.debug_port != -1) {
-        debug_server->start(options.debug_port);
+        debug_server.start(options.debug_port);
     }
 
     // run emulation
-    machine->run(*debug_server);
+    screen.run();
 }

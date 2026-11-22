@@ -4,10 +4,11 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
-#pragma once
+#include "clock.h"
+#include "system.h"
+#include <chrono>
+#include <thread>
 
-#include <cstdint>
-
-struct Clock {
-    uint64_t ticks = 0;
-};
+void sleep_ms(Milliseconds ms) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
