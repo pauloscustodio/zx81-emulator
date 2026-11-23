@@ -37,6 +37,7 @@ Screen::Screen(Machine& machine)
                       int(384 * scale),
                       SDL_WINDOW_RESIZABLE);
 
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
     main_renderer = SDL_CreateRenderer(main_window, nullptr);
     if (main_renderer == nullptr) {
         die("Unable to create renderer: " + std::string(SDL_GetError()));
