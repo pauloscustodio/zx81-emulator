@@ -19,14 +19,6 @@ void Clock::add_cycles(Cycles delta) {
     cycles += delta;
 }
 
-Frames Clock::get_frames() const {
-    return frames;
-}
-
-void Clock::add_frame() {
-    frames += 1;
-}
-
 Milliseconds Clock::get_elapsed_ms() const {
     auto elapsed = std::chrono::steady_clock::now() - start;
 

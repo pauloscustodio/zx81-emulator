@@ -6,9 +6,12 @@
 
 #pragma once
 
+#include "clock.h"
 #include "cpu.h"
 #include "disasm.h"
+#include "machine.h"
 #include "memory.h"
+#include "symbols.h"
 #include "zx81.h"
 #include <string>
 #include <vector>
@@ -60,21 +63,20 @@ private:
 
 class StatusScreen : public AsciiScreen {
 public:
-    StatusScreen(const Clock& clock, const Memory& memory,
-                 const SymbolTable& symtab, const Disassembler& disasm);
+    StatusScreen(const Memory& memory, const SymbolTable& symtab,
+                 const Disassembler& disasm);
 
-    void update(const Registers& regs, word_t data_addr,
-                const std::vector<word_t>& watchpoints, Cycles cycles_per_frame, bool slow);
+    void update(const DebuggerSnapshot& snapshot);
     void update_registers(const Registers& regs);
     void update_stack(word_t sp);
     void update_sysvars();
     void update_memory(word_t data_addr);
     void update_disassembly(word_t pc);
     void update_watchpoints(const std::vector<word_t>& watchpoints);
-    void update_status(Cycles cycles_per_frame, bool slow);
+    void update_status(Cycles cycles, Frames frames, Cycles cycles_per_frame,
+                       bool slow);
 
 private:
-    const Clock& clock;
     const Memory& memory;
     const SymbolTable& symtab;
     const Disassembler& disasm;

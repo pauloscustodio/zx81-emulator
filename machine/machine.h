@@ -13,10 +13,19 @@
 #include "memory.h"
 #include "ports.h"
 #include "printer.h"
-#include "status.h"
 #include "traps.h"
 #include "zx81.h"
 #include <string>
+
+struct DebuggerSnapshot {
+    Registers regs;
+    word_t data_addr;
+    std::vector<word_t> watchpoints;
+    Cycles cycles;
+    Frames frames_count;
+    Cycles cycles_per_frame;
+    bool slow;
+};
 
 class Machine {
 public:
@@ -41,10 +50,10 @@ public:
     const Memory& get_memory() const;
     bool slow_mode() const;
     Cycles get_cycles_per_frame() const;
+    DebuggerSnapshot get_debugger_snapshot() const;
 
 private:
     Clock& clock;
-
     Memory memory;
     Keyboard keyboard;
     Ports ports;
@@ -52,9 +61,14 @@ private:
     Traps traps;
     Cpu cpu;
     Files files;
+    Frames frames_count = 0;
+
     // slow mode from -s option and from SLOW/FAST commands
     bool master_slow_mode = false;
     bool basic_slow_mode = false;
+
+    // true when the machine is running, false when EXIT_HOOK is called
+    bool running = true;
 
     // detect when ROM finished initialization
     bool init_finished = false;
@@ -63,10 +77,6 @@ private:
     bool in_pause = false;
     Milliseconds pause_start_ms = 0;
     Milliseconds pause_duration_ms = 0;
-
-    // machine state
-    bool running = true;
-
 
     bool printer_active() const;
 };

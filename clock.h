@@ -19,14 +19,11 @@ public:
 
     Cycles get_cycles() const;
     void add_cycles(Cycles delta);
-    Frames get_frames() const;
-    void add_frame();
 
     Milliseconds get_elapsed_ms() const;
 
 private:
     Cycles cycles = 0;
-    Frames frames = 0;
 
     std::chrono::steady_clock::time_point start;
 };

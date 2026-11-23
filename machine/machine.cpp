@@ -117,7 +117,6 @@ void Machine::run_frame() {
     // In SLOW mode this matches the real ZX81 timing.
     // In FAST mode a larger value may be used to accelerate execution.
     Cycles cycles_per_frame = get_cycles_per_frame();
-
     Cycles start_cycles = clock.get_cycles();
 
     while (running && clock.get_cycles() - start_cycles < cycles_per_frame) {
@@ -190,7 +189,8 @@ void Machine::run_frame() {
         keyboard.scan(clock.get_elapsed_ms(), memory);
     }
 
-    clock.add_frame();
+    // count one frame
+    frames_count++;
 }
 
 Milliseconds Machine::frame_budget_ms() const {
@@ -295,6 +295,14 @@ Cycles Machine::get_cycles_per_frame() const {
            ClocksPerFrameFast;
 }
 
+DebuggerSnapshot Machine::get_debugger_snapshot() const {
+    DebuggerSnapshot snapshot;
+    snapshot.regs = cpu.get_registers();
+    snapshot.cycles = clock.get_cycles();
+    snapshot.frames_count = frames_count;
+    snapshot.cycles_per_frame = get_cycles_per_frame();
+    snapshot.slow = slow_mode();
+    return snapshot;
 }
 
 bool Machine::printer_active() const {

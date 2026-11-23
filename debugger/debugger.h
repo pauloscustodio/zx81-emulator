@@ -21,7 +21,7 @@ class DebugServer;
 
 class Debugger {
 public:
-    explicit Debugger(const Clock& clock, Machine& machine, const Memory& memory,
+    explicit Debugger(Machine& machine, const Memory& memory,
                       DebugServer& debug_server,
                       const SymbolTable& symtab, const Disassembler& disasm);
 
@@ -31,7 +31,6 @@ public:
     void dump_status();
 
 private:
-    const Clock& clock;
     Machine& machine;
     const Memory& memory;
     DebugServer& debug_server;
@@ -40,7 +39,6 @@ private:
     bool running = true;
     word_t data_addr = 0;
     std::vector<word_t> watchpoints;
-    word_t top_disassembly_addr = 0;
     std::string last_status_dump;
 
 

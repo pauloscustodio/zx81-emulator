@@ -105,20 +105,20 @@ std::string AsciiScreen::get_image() const {
     return result;
 }
 
-StatusScreen::StatusScreen(const Clock& clock, const Memory& memory,
+StatusScreen::StatusScreen(const Memory& memory,
                            const SymbolTable& symtab, const Disassembler& disasm)
-    : clock(clock), memory(memory), symtab(symtab), disasm(disasm) {
+    : memory(memory), symtab(symtab), disasm(disasm) {
 }
 
-void StatusScreen::update(const Registers& regs, word_t data_addr,
-                          const std::vector<word_t>& watchpoints, Cycles cycles_per_frame, bool slow) {
-    update_registers(regs);
-    update_stack(regs.sp);
+void StatusScreen::update(const DebuggerSnapshot& snapshot) {
+    update_registers(snapshot.regs);
+    update_stack(snapshot.regs.sp);
     update_sysvars();
-    update_memory(data_addr);
-    update_disassembly(regs.pc);
-    update_watchpoints(watchpoints);
-    update_status(cycles_per_frame, slow);
+    update_memory(snapshot.data_addr);
+    update_disassembly(snapshot.regs.pc);
+    update_watchpoints(snapshot.watchpoints);
+    update_status(snapshot.cycles, snapshot.frames_count, snapshot.cycles_per_frame,
+                  snapshot.slow);
 }
 
 void StatusScreen::update_registers(const Registers& regs) {
@@ -260,10 +260,11 @@ void StatusScreen::update_watchpoints(const std::vector<word_t>& watchpoints) {
     }
 }
 
-void StatusScreen::update_status(Cycles cycles_per_frame, bool slow) {
+void StatusScreen::update_status(Cycles cycles, Frames frames,
+                                 Cycles cycles_per_frame, bool slow) {
     draw_box(StatusRow, StatusCol, StatusWidth, StatusHeight, "Status");
-    std::string cycles_str = fmt_with_commas(clock.get_cycles());
-    std::string frames_str = fmt_with_commas(clock.get_frames());
+    std::string cycles_str = fmt_with_commas(cycles);
+    std::string frames_str = fmt_with_commas(frames);
     std::string cycles_per_frame_str = fmt_with_commas(cycles_per_frame);
     putf(StatusRow + 1, StatusCol + 1, "Cycles%18s|", cycles_str.c_str());
     putf(StatusRow + 2, StatusCol + 1, "Frames%18s|", frames_str.c_str());

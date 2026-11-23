@@ -165,7 +165,7 @@ private:
     kbd_state_t shift_state;        // current state of the shift key
 
     // time between key events in the queue, in milliseconds
-    static inline constexpr int QueueTimeMs = 20;
+    static inline constexpr int QueueTimeMs = 50;
 
     std::queue<kbd_state_t> queue;  // keyboard queue for pasting
     enum { Q_IDLE, Q_DOWN, Q_UP };  // queue state machine states

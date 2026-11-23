@@ -20,10 +20,10 @@
 static inline constexpr const char* CLEAR_SCREEN = "\033[2J\033[H";
 static inline constexpr const char* HOME = "\033[H";
 
-Debugger::Debugger(const Clock& clock, Machine& machine, const Memory& memory,
+Debugger::Debugger(Machine& machine, const Memory& memory,
                    DebugServer& debug_server,
                    const SymbolTable& symtab, const Disassembler& disasm)
-    : clock(clock), machine(machine), memory(memory),
+    : machine(machine), memory(memory),
       debug_server(debug_server),
       symtab(symtab), disasm(disasm) {
 }
@@ -89,12 +89,13 @@ void Debugger::dump_status() {
     }
 
     // get snapshop
-    Registers regs = machine.get_registers();
+    DebuggerSnapshot snapshot = machine.get_debugger_snapshot();
+    snapshot.data_addr = data_addr;
+    snapshot.watchpoints = watchpoints;
 
     // render it and display it
-    StatusScreen screen(clock, memory, symtab, disasm);
-    screen.update(regs, data_addr, watchpoints, machine.get_cycles_per_frame(),
-                  machine.slow_mode());
+    StatusScreen screen(memory, symtab, disasm);
+    screen.update(snapshot);
     std::string status_dump = screen.get_image();
     if (status_dump != last_status_dump) {
         last_status_dump = status_dump;

@@ -23,7 +23,7 @@ App::App() {
     debug_server = std::make_unique<DebugServer>();
     symtab = std::make_unique<SymbolTable>();
     disasm = std::make_unique<Disassembler>(machine->get_memory(), *symtab);
-    debugger = std::make_unique<Debugger>(clock, *machine, machine->get_memory(),
+    debugger = std::make_unique<Debugger>(*machine, machine->get_memory(),
                                           *debug_server, *symtab, *disasm);
 }
 
