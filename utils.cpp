@@ -69,3 +69,31 @@ std::string str_trim(std::string str) {
     }
     return str;
 }
+
+int str_case_cmp(const std::string& str1, const std::string& str2) {
+    std::string s1 = str_tolower(str1);
+    std::string s2 = str_tolower(str2);
+    if (s1 < s2) {
+        return -1;
+    }
+    if (s1 > s2) {
+        return 1;
+    }
+    return 0;
+}
+
+std::string get_directory(const std::string& path) {
+    std::string::size_type pos = path.find_last_of("/\\");
+    if (pos != std::string::npos) {
+        return path.substr(0, pos);
+    }
+    return ".";
+}
+
+std::string get_filename(const std::string& path) {
+    std::string::size_type pos = path.find_last_of("/\\");
+    if (pos != std::string::npos) {
+        return path.substr(pos + 1);
+    }
+    return path;
+}

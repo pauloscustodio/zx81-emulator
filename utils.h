@@ -22,9 +22,14 @@
 
 std::string fmt_hex(int value, int digits = 2,
                     const std::string& prefix = "$");
+
 std::string str_tolower(std::string str);
 std::string str_replace_all(std::string str, const std::string& from,
                             const std::string& to);
 bool str_ends_with(const std::string& str, const std::string& ending);
 bool str_starts_with(const std::string& str, const std::string& starting);
 std::string str_trim(std::string str);
+int str_case_cmp(const std::string& str1, const std::string& str2);
+
+std::string get_directory(const std::string& path);
+std::string get_filename(const std::string& path);

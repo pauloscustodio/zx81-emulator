@@ -7,5 +7,8 @@
 #pragma once
 
 #include "clock.h"
+#include <string>
 
 void sleep_ms(Milliseconds ms);
+std::string find_file_case(const std::string& path);
+

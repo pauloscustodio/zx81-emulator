@@ -9,6 +9,7 @@
 #include "files.h"
 #include "keyboard.h"
 #include "memory.h"
+#include "system.h"
 #include "utils.h"
 #include "zx81.h"
 #include <fstream>
@@ -100,12 +101,18 @@ void Files::load_hook(Cpu& cpu) {
 
     bool is_load_qq = (addr & 0x8000) != 0;     // LOAD ""
     if (is_load_qq) {
-        return; // ignore LOAD ""
+        // ignore LOAD ""
     }
     else {
         // LOAD "FILE"
         std::string filename = read_filename(addr);
-        load_p(filename);
+        std::string found_filename = find_file_case(filename);
+        if (found_filename.empty()) {
+            std::cerr << "Error: File not found: " << filename << std::endl;
+        }
+        else {
+            load_p(found_filename);
+        }
     }
 
     // jump to RET
