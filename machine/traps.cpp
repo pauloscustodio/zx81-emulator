@@ -5,9 +5,13 @@
 //-----------------------------------------------------------------------------
 
 #include "traps.h"
-#include "cpu.h"
+#include "zx81.h"
 
 Traps::TrapHandler Traps::find(word_t addr) {
+    auto it = traps.find(addr);
+    if (it == traps.end()) {
+        return nullptr;
+    }
     return traps[addr];
 }
 
