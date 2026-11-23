@@ -20,8 +20,14 @@ for (@lines) {
     my $source_file_line = $fields[7];
 
     $value_hex =~ /^\$([0-9a-f]+)$/i or die "invalid hex value: $value_hex";
-    my $value = hex($1);
-    $value = -1 - ( 0xffffffff ^ $value ) if ( $value & 0x80000000 );
+    my $hex_str = $1;
+    my $value;
+    if ( $hex_str =~ /ffffffff/i ) {
+        $value = -1;    # either 8 or 16 f's for 32 and 64 bit
+    }
+    else {
+        $value = hex($hex_str);
+    }
     my $value_fmt = $value < 10 ? $value : sprintf( "0x%04x", $value );
 
     my ( $source_file, $line_num ) = split /:/, $source_file_line;
