@@ -52,6 +52,9 @@ private:
     Traps traps;
     Cpu cpu;
     Files files;
+    // slow mode from -s option and from SLOW/FAST commands
+    bool master_slow_mode = false;
+    bool basic_slow_mode = false;
 
     // detect when ROM finished initialization
     bool init_finished = false;
@@ -64,11 +67,6 @@ private:
     // machine state
     bool running = true;
 
-    // current SLOW/FAST mode based on CDFLAG
-    bool basic_slow_mode() const;
-
-    // master slow mode based on the command line option -s
-    bool master_slow_mode = false;
 
     bool printer_active() const;
 };

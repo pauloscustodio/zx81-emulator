@@ -44,19 +44,18 @@ Machine::Machine(Clock& clock)
         cpu.exec_ret();
     });
 
-    // patch CDFLAG for SLOW mode
-    memory.write8(CDFLAG, SlowMode);
-
     // patch FAST and SLOW routines
     traps.add(FAST, [this](Cpu & cpu) {
-        memory.write8(CDFLAG, FastMode);
+        basic_slow_mode = false;
         cpu.exec_ret();
     });
 
     traps.add(SLOW, [this](Cpu & cpu) {
-        memory.write8(CDFLAG, SlowMode);
+        basic_slow_mode = true;
         cpu.exec_ret();
     });
+
+    basic_slow_mode = master_slow_mode;
 
     // detect when the ROM finished initialization
     auto init_finished_trap = [this](Cpu & cpu) {
@@ -287,7 +286,7 @@ const Memory& Machine::get_memory() const {
 }
 
 bool Machine::slow_mode() const {
-    return basic_slow_mode() && master_slow_mode;
+    return basic_slow_mode && master_slow_mode;
 }
 
 Cycles Machine::get_cycles_per_frame() const {
@@ -296,8 +295,6 @@ Cycles Machine::get_cycles_per_frame() const {
            ClocksPerFrameFast;
 }
 
-bool Machine::basic_slow_mode() const {
-    return (memory.read8(CDFLAG) & SlowMode) != 0;
 }
 
 bool Machine::printer_active() const {
