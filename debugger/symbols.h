@@ -32,8 +32,12 @@ public:
     const Symbol* get(const std::string& name) const;
 
     // Retrieve all symbols associated with a value.
-    std::vector<Symbol*> get(int value);
-    std::vector<const Symbol*> get(int value) const;
+    std::vector<Symbol*> get_all(int value);
+    std::vector<const Symbol*> get_all(int value) const;
+
+    // retrieve the first symbol associated with a value, if any, or nullptr if not found
+    Symbol* get_first(int value);
+    const Symbol* get_first(int value) const;
 
 private:
     std::vector<Symbol> symbols;

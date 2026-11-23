@@ -34,6 +34,7 @@ using socket_size_t = ssize_t;
 constexpr socket_t invalid_socket = -1;
 #endif
 
+void init_terminal();
 void sleep_ms(Milliseconds ms);
 void init_socket_runtime();
 void close_socket(socket_t sock);

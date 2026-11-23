@@ -11,12 +11,20 @@ Clock::Clock()
     : start(std::chrono::steady_clock::now()) {
 }
 
-Cycles Clock::get_ticks() const {
-    return ticks;
+Cycles Clock::get_cycles() const {
+    return cycles;
 }
 
-void Clock::add_ticks(Cycles delta) {
-    ticks += delta;
+void Clock::add_cycles(Cycles delta) {
+    cycles += delta;
+}
+
+Frames Clock::get_frames() const {
+    return frames;
+}
+
+void Clock::add_frame() {
+    frames += 1;
 }
 
 Milliseconds Clock::get_elapsed_ms() const {

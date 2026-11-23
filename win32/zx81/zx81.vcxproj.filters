@@ -105,6 +105,9 @@
     <ClInclude Include="..\..\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\debugger\status.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="..\..\app.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\debugger\status.cpp">
+      <Filter>Source Files\debugger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -8,8 +8,10 @@
 
 #include "clock.h"
 #include "debugger.h"
+#include "disasm.h"
 #include "machine.h"
 #include "screen.h"
+#include "symbols.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,14 +32,14 @@ public:
 
 private:
     Clock clock;
-
-    // too large for the stack, need to allocate on the heap
     std::unique_ptr<Machine> machine;
+    std::unique_ptr<Debugger> debugger;
+    std::unique_ptr<DebugServer> debug_server;
+    std::unique_ptr<SymbolTable> symtab;
+    std::unique_ptr<Disassembler> disasm;
 
     // optional, only created if not in headless mode
     std::unique_ptr<Screen> screen;
-
-    DebugServer debug_server;
 
     int debug_port = -1;
     bool slow_mode = false;

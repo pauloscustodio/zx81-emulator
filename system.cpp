@@ -8,7 +8,7 @@
 #include "system.h"
 #include "utils.h"
 #include <chrono>
-#include <cstring>
+#include <cstdio>
 #include <thread>
 
 #ifdef _WIN32
@@ -16,6 +16,31 @@
 #else
 #include <dirent.h>
 #endif
+
+static void disable_buffering() {
+    // avoid that the windows subsystem buffers stdout and stderr,
+    // which causes the output to be delayed
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
+}
+
+void init_terminal() {
+#ifdef _WIN32
+    // enable VT100 escape sequences on Windows 10 console
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    DWORD dwMode = 0;
+    if (!GetConsoleMode(hOut, &dwMode)) {
+        return;
+    }
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+#endif
+
+    disable_buffering();
+}
 
 void sleep_ms(Milliseconds ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));

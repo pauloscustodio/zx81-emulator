@@ -5,14 +5,10 @@
 //-----------------------------------------------------------------------------
 
 #include "app.h"
-#include <cstdio>
-#include <memory>
+#include "system.h"
 
 int main(int argc, char* argv[]) {
-    // avoid that the windows subsystem buffers stdout and stderr,
-    // which causes the output to be delayed
-    setvbuf(stdout, NULL, _IONBF, 0);
-    setvbuf(stderr, NULL, _IONBF, 0);
+    init_terminal();
 
     App app;
     app.parse_cmd_line(argc, argv);

@@ -4,11 +4,103 @@
 // License: GPL v2
 //-----------------------------------------------------------------------------
 
+#include "clock.h"
+#include "cpu.h"
 #include "debugger.h"
+#include "disasm.h"
 #include "machine.h"
+#include "status.h"
+#include "symbols.h"
 #include "utils.h"
+#include <cstdint>
+#include <cstdio>
 #include <iostream>
 #include <string>
+
+static inline constexpr const char* CLEAR_SCREEN = "\033[2J\033[H";
+static inline constexpr const char* HOME = "\033[H";
+
+Debugger::Debugger(const Clock& clock, Machine& machine, const Memory& memory,
+                   DebugServer& debug_server,
+                   const SymbolTable& symtab, const Disassembler& disasm)
+    : clock(clock), machine(machine), memory(memory),
+      debug_server(debug_server),
+      symtab(symtab), disasm(disasm) {
+}
+
+void Debugger::poll() {
+    debug_server.poll(*this);
+}
+
+bool Debugger::is_running() const {
+    return running;
+}
+
+std::string Debugger::execute_command(const std::string& command_) {
+    std::string command = str_trim(command_);
+    if (command.empty()) {
+        return "";
+    }
+
+    if (command == "help") {
+        return "Available commands:\n"
+               "  help   - Show this help message\n"
+               "  quit   - Quit the debugger\n"
+               "  regs   - Show CPU registers\n"
+               "  type   - Type text on the machine\n"
+               ;
+        //"  mem    - Dump memory contents\n"
+        //"  screen - Dump screen contents\n"
+    }
+
+    if (command == "quit") {
+        running = false;
+        return "";
+    }
+
+    if (command == "regs") {
+        Registers regs = machine.get_registers();
+        return regs.to_string();
+    }
+
+    if (str_starts_with(command, "type ")) {
+        std::string text = command.substr(5);
+        machine.paste(text + "\n");
+        return "";
+    }
+
+    /*
+    else if (command == "mem") {
+        return memory.dump();
+    }
+    else if (command == "screen") {
+        return get_screen_dump();
+    }
+    else
+    */
+    return "Unknown command: '" + command + "'";
+}
+
+void Debugger::dump_status() {
+    static bool first_time = true;
+    if (first_time) {
+        printf("%s", CLEAR_SCREEN);
+        first_time = false;
+    }
+
+    // get snapshop
+    Registers regs = machine.get_registers();
+
+    // render it and display it
+    StatusScreen screen(clock, memory, symtab, disasm);
+    screen.update(regs, data_addr, watchpoints, machine.get_cycles_per_frame(),
+                  machine.slow_mode());
+    std::string status_dump = screen.get_image();
+    if (status_dump != last_status_dump) {
+        last_status_dump = status_dump;
+        printf("%s%s", HOME, status_dump.c_str());
+    }
+}
 
 void DebugServer::start(uint16_t port) {
     // setup socket server for debugger
@@ -30,7 +122,7 @@ void DebugServer::start(uint16_t port) {
     std::cout << "Debugger server listening on port " << port << std::endl;
 }
 
-void DebugServer::poll(Machine& debugger) {
+void DebugServer::poll(Debugger& debugger) {
     if (listen_fd == invalid_socket) {
         return;
     }
@@ -59,7 +151,7 @@ void DebugServer::poll(Machine& debugger) {
             }
             std::cout << std::endl;
 
-            std::string response = debugger.debugger_command(buffer);
+            std::string response = debugger.execute_command(buffer);
             if (!response.empty()) {
                 send(response + "\n> ");
             }
@@ -92,4 +184,3 @@ void DebugServer::send(const std::string& text) {
         total += n;
     }
 }
-

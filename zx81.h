@@ -69,7 +69,7 @@ static inline constexpr int FREE1   = 0x4021;
 static inline constexpr int DF_SZ   = 0x4022;
 static inline constexpr int S_TOP   = 0x4023;
 static inline constexpr int LAST_K  = 0x4025;
-static inline constexpr int DBOUNCE = 0x4027;
+static inline constexpr int DB_ST   = 0x4027;
 static inline constexpr int MARGIN  = 0x4028;
 static inline constexpr int NXTLIN  = 0x4029;
 static inline constexpr int OLDPPC  = 0x402b;
@@ -89,6 +89,7 @@ static inline constexpr int CDFLAG  = 0x403b;
 static inline constexpr int PRBUFF  = 0x403c;
 static inline constexpr int MEMBOT  = 0x405d;
 static inline constexpr int FREE2   = 0x407b;
+static inline constexpr int PROG    = 0x407d;
 
 // Hook to exit the emulator
 static inline constexpr int EXIT_HOOK = 8191;

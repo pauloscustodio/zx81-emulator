@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -22,7 +23,7 @@
 
 std::string fmt_hex(int value, int digits = 2,
                     const std::string& prefix = "$");
-
+std::string fmt_with_commas(uint64_t value);
 std::string str_tolower(std::string str);
 std::string str_replace_all(std::string str, const std::string& from,
                             const std::string& to);

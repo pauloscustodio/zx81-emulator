@@ -6,9 +6,11 @@
 
 #include "app.h"
 #include "clock.h"
+#include "debugger.h"
 #include "getopt.h"
 #include "machine.h"
 #include "screen.h"
+#include "symbols.h"
 #include "system.h"
 #include "utils.h"
 #include <cstdlib>
@@ -18,6 +20,11 @@
 
 App::App() {
     machine = std::make_unique<Machine>(clock);
+    debug_server = std::make_unique<DebugServer>();
+    symtab = std::make_unique<SymbolTable>();
+    disasm = std::make_unique<Disassembler>(machine->get_memory(), *symtab);
+    debugger = std::make_unique<Debugger>(clock, *machine, machine->get_memory(),
+                                          *debug_server, *symtab, *disasm);
 }
 
 void App::parse_cmd_line(int argc, char* argv[]) {
@@ -85,7 +92,7 @@ void App::configure() {
 
     // start debugger server if requested
     if (debug_port != -1) {
-        debug_server.start(debug_port);
+        debug_server->start(debug_port);
     }
 }
 
@@ -119,7 +126,7 @@ const std::vector<std::string>& App::get_args() const {
 }
 
 void App::run_headless() {
-    while (machine->is_running()) {
+    while (machine->is_running() && debugger->is_running()) {
         Milliseconds start = clock.get_elapsed_ms();
         run_frame();
         throttle(start);
@@ -127,7 +134,8 @@ void App::run_headless() {
 }
 
 void App::run_with_screen() {
-    while (screen->is_running() && machine->is_running()) {
+    while (screen->is_running() && machine->is_running()
+            && debugger->is_running()) {
         Milliseconds start = clock.get_elapsed_ms();
         screen->handle_events();
         run_frame();
@@ -138,7 +146,10 @@ void App::run_with_screen() {
 
 void App::run_frame() {
     machine->run_frame();
-    debug_server.poll(*machine);
+    if (is_debug_mode()) {
+        debugger->dump_status();
+    }
+    debug_server->poll(*debugger);
 }
 
 void App::throttle(Milliseconds start) {

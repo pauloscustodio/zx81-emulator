@@ -93,6 +93,9 @@ OBJS 	:= $(patsubst %.c,$(BUILD_DIR)/%.o,$(CSRCS)) \
 
 DEPENDS = $(OBJS:.o=.d)
 
+DASM_SRCS = cpu/z80ex/examples/dasm.c \
+			cpu/z80ex/z80ex_dasm.c
+
 #------------------------------------------------------------------------------
 # build
 #------------------------------------------------------------------------------
@@ -115,6 +118,11 @@ $(BUILD_DIR)/$(PROJ).o: machine/rom.h
 machine/rom.h: rom/zx81_edition3.rom tools/file2c.pl Makefile
 	perl tools/file2c.pl $< rom > $@
 	dos2unix $@
+
+all: $(BUILD_DIR)/dasm$(EXESUFFIX)
+
+$(BUILD_DIR)/dasm$(EXESUFFIX): $(DASM_SRCS)		
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DASM_SRCS) -o $@
 
 #------------------------------------------------------------------------------
 # developer only initialization

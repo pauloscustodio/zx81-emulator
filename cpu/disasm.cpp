@@ -8,52 +8,79 @@
 #include "memory.h"
 #include "utils.h"
 #include "z80ex_dasm.h"
+#include "zx81.h"
 #include <algorithm>
-#include <algorithm>
+#include <cstdio>
 #include <regex>
 #include <string>
+#include <vector>
 
-Disassembler::Disassembler(const Memory& memory)
-    : memory_(memory) {}
+Disassembler::Disassembler(const Memory& memory, const SymbolTable& symtab)
+    : memory(memory), symtab(symtab) {}
 
-DisInstruction Disassembler::disassemble(int addr) {
+AsmInstr Disassembler::disassemble(word_t addr) const {
     char buffer[64] = { 0 };
     int t_states = 0, t_states2 = 0;
     int size = z80ex_dasm(buffer, sizeof(buffer), /*flags*/0,
-                          &t_states, &t_states2, read_byte, addr, this);
+                          &t_states, &t_states2, read_byte, addr,
+                          reinterpret_cast<void*>(const_cast<Disassembler*>(this)));
 
-    DisInstruction instr;
+    AsmInstr instr;
     instr.addr = addr;
     instr.size = size;
     instr.text = buffer;
+    return instr;
+}
 
-    // format the instruction text: replace '#' with '$' for hex numbers, and convert to lowercase
-    instr.text = str_replace_all(instr.text, "#", "$");
-    instr.text = str_tolower(instr.text);
+std::string Disassembler::format(const AsmInstr& instr, word_t pc) const {
+    char buffer[64];
 
-    // add the hex representation of the instruction bytes to the output
-    instr.hex_data = fmt_hex(addr, 4, "") + " ";
-    for (int i = 0; i < size; ++i) {
-        byte_t b = memory_.fetch8(addr + i);
-        instr.hex_data += " " + fmt_hex(b, 2, "");
+    // create the hex representation of the instruction bytes to the output
+    snprintf(buffer, sizeof(buffer), "%04x:", instr.addr);
+    std::string result = buffer;
+    for (int i = 0; i < instr.size; i++) {
+        snprintf(buffer, sizeof(buffer), " %02x", memory.read8(WORD(instr.addr + i)));
+        result += buffer;
+    }
+    if (instr.size < 4) {
+        result += std::string(3 * (4 - instr.size), ' ');
+    }
+    snprintf(buffer, sizeof(buffer), "%c", INT(instr.addr) == pc ? '>' : ' ');
+    result += buffer;
+
+    // add the label if any
+    const Symbol* label = symtab.get_first(WORD(instr.addr));
+    if (label == nullptr) {
+        result += std::string(10, ' ');
+    }
+    else {
+        snprintf(buffer, sizeof(buffer), "%-10.10s", label->name.c_str());
+        result += buffer;
     }
 
-    // pad to 4 bytes
-    instr.hex_data += std::string(std::max(0, (4 - size) * 3), ' ');
+    // format the instruction text: replace '#' with '$' for hex numbers, and convert to lowercase
+    std::string opcode = instr.text;
+    opcode = str_replace_all(opcode, "#", "$");
+    opcode = str_tolower(opcode);
 
-    // space before instruction text
-    instr.hex_data += "  ";
+    // replace numbers and (iy+xx) by labels
+    opcode = replace_labels(opcode);
+    opcode = replace_iy_references(opcode);
 
-    return instr;
+    // fill with spaces and trim if too long
+    snprintf(buffer, sizeof(buffer), "%-20.20s", opcode.c_str());
+    opcode = buffer;
+
+    result += opcode;
+    return result;
 }
 
 byte_t Disassembler::read_byte(word_t addr, void* user_data) {
     Disassembler* self = static_cast<Disassembler*>(user_data);
-    return self->memory_.fetch8(addr);
+    return self->memory.fetch8(addr);
 }
 
-static std::string replace_labels(const std::string& text,
-                                  const SymbolTable& symtab) {
+std::string Disassembler::replace_labels(const std::string& text) const {
     // Match: $ followed by 4 hexadecimal digits
     static const std::regex pattern(R"(\$([0-9a-f]{4}))", std::regex::icase);
 
@@ -72,10 +99,10 @@ static std::string replace_labels(const std::string& text,
         int value = static_cast<int>(std::stoull(match[1].str(), nullptr, 16));
 
         // Look up the symbol table
-        std::vector<const Symbol*> symbols = symtab.get(value);
-        if (!symbols.empty()) {
+        const Symbol* symbol = symtab.get_first(value);
+        if (symbol != nullptr) {
             // Replace with the first symbol name
-            result += symbols.front()->name;
+            result += symbol->name;
         }
         else {
             // Leave original text unchanged
@@ -90,8 +117,7 @@ static std::string replace_labels(const std::string& text,
     return result;
 }
 
-static std::string replace_iy_references(const std::string& text,
-        const SymbolTable& symtab) {
+std::string Disassembler::replace_iy_references(const std::string& text) const {
     // Match: iy+$ followed 2 hexadecimal digits
     static const std::regex pattern(R"(iy\+\$([0-9a-f]{2}))", std::regex::icase);
 
@@ -115,10 +141,10 @@ static std::string replace_iy_references(const std::string& text,
         }
         else {
             // Look up the symbol table
-            std::vector<const Symbol*> symbols = symtab.get(ERR_NO + value);
-            if (!symbols.empty()) {
+            const Symbol* symbol = symtab.get_first(ERR_NO + value);
+            if (symbol != nullptr) {
                 // Replace with the first symbol name
-                result += "iy+" + symbols.front()->name + "-IY0";
+                result += "iy+" + symbol->name + "-IY0";
             }
             else {
                 // Leave original text unchanged
@@ -131,30 +157,5 @@ static std::string replace_iy_references(const std::string& text,
 
     // Append remaining text
     result.append(text, last_pos, std::string::npos);
-    return result;
-}
-
-std::string DisInstruction::format(const SymbolTable& symtab) {
-    std::vector<const Symbol*> labels = symtab.get(addr);
-
-    // hex address and bytes
-    std::string result = hex_data;
-
-    // label if any
-    if (!labels.empty()) {
-        std::string label = labels.front()->name + ":";
-        int padding = LabelWidth - static_cast<int>(label.size());
-        label += std::string(std::max(0, padding), ' ');
-        result += label;
-    }
-    else {
-        result += std::string(LabelWidth, ' ');
-    }
-
-    // add opcode with numbers and (iy+xx) replaced by labels
-    std::string opcode = replace_labels(text, symtab);
-    opcode = replace_iy_references(opcode, symtab);
-    result += opcode;
-
     return result;
 }

@@ -6,31 +6,29 @@
 
 #pragma once
 
+#include "memory.h"
 #include "symbols.h"
 #include "zx81.h"
 #include <string>
 
-class Memory;
-
-static inline constexpr int LabelWidth = 16;
-
-struct DisInstruction {
-    int addr = 0;
-    int size = 0;
+struct AsmInstr {
+    word_t addr = 0;
+    word_t size = 0;
     std::string text;
-    std::string hex_data;
-
-    std::string format(const SymbolTable& symtab);
 };
 
 class Disassembler {
 public:
-    explicit Disassembler(const Memory& memory);
+    explicit Disassembler(const Memory& memory, const SymbolTable& symtab);
 
-    DisInstruction disassemble(int addr);
+    AsmInstr disassemble(word_t addr) const;
+    std::string format(const AsmInstr& instr, word_t pc) const;
 
 private:
-    const Memory& memory_;
+    const Memory& memory;
+    const SymbolTable& symtab;
 
     static byte_t read_byte(word_t addr, void* user_data);
+    std::string replace_labels(const std::string& text) const;
+    std::string replace_iy_references(const std::string& text) const;
 };

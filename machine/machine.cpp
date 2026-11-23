@@ -117,13 +117,11 @@ void Machine::run_frame() {
     // Execute one frame worth of Z80 clock cycles.
     // In SLOW mode this matches the real ZX81 timing.
     // In FAST mode a larger value may be used to accelerate execution.
-    Cycles ticks_per_frame = slow_mode() && master_slow_mode ?
-                             ClocksPerFrameSlow :
-                             ClocksPerFrameFast;
+    Cycles cycles_per_frame = get_cycles_per_frame();
 
-    Cycles start_ticks = clock.get_ticks();
+    Cycles start_cycles = clock.get_cycles();
 
-    while (running && clock.get_ticks() - start_ticks < ticks_per_frame) {
+    while (running && clock.get_cycles() - start_cycles < cycles_per_frame) {
 
         // Handle the ZX81 PAUSE command.
         //
@@ -147,16 +145,16 @@ void Machine::run_frame() {
                     remaining_pause_ms * ClockHz / 1000;
 
                 // Number of cycles remaining in the current video frame.
-                Cycles remaining_frame_ticks =
-                    ticks_per_frame - (clock.get_ticks() - start_ticks);
+                Cycles remaining_frame_cycles =
+                    cycles_per_frame - (clock.get_cycles() - start_cycles);
 
-                if (remaining_pause_ticks < remaining_frame_ticks) {
+                if (remaining_pause_ticks < remaining_frame_cycles) {
 
                     // The pause will finish before the end of the current
                     // frame. Advance the emulated clock by the equivalent
                     // paused duration, wait for the remaining wall-clock
                     // time, then resume execution within this frame.
-                    clock.add_ticks(remaining_pause_ticks);
+                    clock.add_cycles(remaining_pause_ticks);
                     sleep_ms(remaining_pause_ms);
                     in_pause = false;
                 }
@@ -166,7 +164,7 @@ void Machine::run_frame() {
                     // Advance only to the end of the frame and leave the
                     // pause active so that the next frame will continue
                     // waiting.
-                    clock.add_ticks(remaining_frame_ticks);
+                    clock.add_cycles(remaining_frame_cycles);
                     break;
                 }
             }
@@ -192,10 +190,12 @@ void Machine::run_frame() {
     if (init_finished) {
         keyboard.scan(clock.get_elapsed_ms(), memory);
     }
+
+    clock.add_frame();
 }
 
 Milliseconds Machine::frame_budget_ms() const {
-    if (slow_mode() && master_slow_mode) {
+    if (slow_mode()) {
         return 1000 / RefreshHz;
     }
 
@@ -278,52 +278,25 @@ bool Machine::is_running() const {
     return running;
 }
 
-std::string Machine::debugger_command(const std::string& command_) {
-    std::string command = str_trim(command_);
-    if (command.empty()) {
-        return "";
-    }
+Registers Machine::get_registers() const {
+    return cpu.get_registers();
+}
 
-    if (command == "help") {
-        return "Available commands:\n"
-               "  help   - Show this help message\n"
-               "  quit   - Quit the debugger\n"
-               "  regs   - Show CPU registers\n"
-               "  type   - Type text on the machine\n"
-               ;
-        //"  mem    - Dump memory contents\n"
-        //"  screen - Dump screen contents\n"
-    }
-
-    if (command == "quit") {
-        running = false;
-        return "";
-    }
-
-    if (command == "regs") {
-        Registers regs = cpu.get_registers();
-        return regs.to_string();
-    }
-
-    if (str_starts_with(command, "type ")) {
-        std::string text = command.substr(5);
-        paste(text + "\n");
-        return "";
-    }
-
-    /*
-    else if (command == "mem") {
-        return memory.dump();
-    }
-    else if (command == "screen") {
-        return get_screen_dump();
-    }
-    else
-    */
-    return "Unknown command: '" + command + "'";
+const Memory& Machine::get_memory() const {
+    return memory;
 }
 
 bool Machine::slow_mode() const {
+    return basic_slow_mode() && master_slow_mode;
+}
+
+Cycles Machine::get_cycles_per_frame() const {
+    return slow_mode() ?
+           ClocksPerFrameSlow :
+           ClocksPerFrameFast;
+}
+
+bool Machine::basic_slow_mode() const {
     return (memory.read8(CDFLAG) & SlowMode) != 0;
 }
 

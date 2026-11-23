@@ -27,6 +27,13 @@ std::string fmt_hex(int value, int digits, const std::string& prefix) {
     return oss.str();
 }
 
+std::string fmt_with_commas(uint64_t value) {
+    std::ostringstream oss;
+    oss.imbue(std::locale(""));
+    oss << std::fixed << value;
+    return oss.str();
+}
+
 std::string str_tolower(std::string str) {
     std::transform(str.begin(), str.end(), str.begin(), [](char c) {
         return std::tolower(c);

@@ -9,18 +9,24 @@
 #include <chrono>
 #include <cstdint>
 
-typedef uint64_t Cycles;
-typedef uint64_t Milliseconds;
+using Cycles = uint64_t;
+using Milliseconds = uint64_t;
+using Frames = uint64_t;
 
 class Clock {
 public:
     Clock();
 
-    Cycles get_ticks() const;
-    void add_ticks(Cycles delta);
+    Cycles get_cycles() const;
+    void add_cycles(Cycles delta);
+    Frames get_frames() const;
+    void add_frame();
+
     Milliseconds get_elapsed_ms() const;
 
 private:
-    Cycles ticks = 0;
+    Cycles cycles = 0;
+    Frames frames = 0;
+
     std::chrono::steady_clock::time_point start;
 };

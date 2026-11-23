@@ -44,7 +44,7 @@ const Symbol* SymbolTable::get(const std::string& name) const {
     return &symbols[it->second];
 }
 
-std::vector<Symbol*> SymbolTable::get(int value) {
+std::vector<Symbol*> SymbolTable::get_all(int value) {
     std::vector<Symbol*> result;
     auto [first, last] = by_value.equal_range(value);
     for (auto it = first; it != last; ++it) {
@@ -53,7 +53,7 @@ std::vector<Symbol*> SymbolTable::get(int value) {
     return result;
 }
 
-std::vector<const Symbol*> SymbolTable::get(int value) const {
+std::vector<const Symbol*> SymbolTable::get_all(int value) const {
     std::vector<const Symbol*> result;
     auto [first, last] = by_value.equal_range(value);
     for (auto it = first; it != last; ++it) {
@@ -62,3 +62,16 @@ std::vector<const Symbol*> SymbolTable::get(int value) const {
     return result;
 }
 
+const Symbol* SymbolTable::get_first(int value) const {
+    auto it = by_value.find(value);
+    if (it == by_value.end()) {
+        return nullptr;
+    }
+    return &symbols[it->second];
+}
+
+Symbol* SymbolTable::get_first(int value) {
+    return const_cast<Symbol*>(
+               static_cast<const SymbolTable&>(*this).get_first(value)
+           );
+}
