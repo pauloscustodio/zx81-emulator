@@ -12,8 +12,11 @@
 #include "status.h"
 #include "symbols.h"
 #include "utils.h"
+#include "zx81.h"
+#include <cctype>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -45,17 +48,23 @@ std::string Debugger::execute_command(const std::string& command_) {
     if (command == "help") {
         return "Available commands:\n"
                "  help   - Show this help message\n"
-               "  quit   - Quit the debugger\n"
-               "  regs   - Show CPU registers\n"
-               "  type   - Type text on the machine\n"
+               "  [q]uit   - Quit the debugger\n"
+               "  regs     - Show CPU registers\n"
+               "  type     - Type text on the machine\n"
+               "  [c]ont   - Continue execution\n"
+               "  stop     - Stop execution\n"
+               "  [b]reak $xx|dd|NAME - Add breakpoint\n"
+               "  read    $xx|dd|NAME - Add break on read\n"
+               "  write   $xx|dd|NAME - Add break on write\n"
+               "  del     $xx|dd|NAME - Delete breakpoints\n"
+               "  [w]atch $xx|dd|NAME - Add watchpoint\n"
+               "  mem     $xx|dd|NAME - Show memory contents\n"
                ;
-        //"  mem    - Dump memory contents\n"
-        //"  screen - Dump screen contents\n"
     }
 
-    if (command == "quit") {
+    if (command == "quit" || command == "q") {
         running = false;
-        return "";
+        return "Quitting emulator";
     }
 
     if (command == "regs") {
@@ -66,7 +75,101 @@ std::string Debugger::execute_command(const std::string& command_) {
     if (str_starts_with(command, "type ")) {
         std::string text = command.substr(5);
         machine.paste(text + "\n");
-        return "";
+        return "Typed text: " + text;
+    }
+
+    if (command == "cont" || command == "c") {
+        machine.get_cpu().set_state(Cpu::State::Running);
+
+        // execute one instruction to avoid stopping at the same breakpoint again
+        machine.get_cpu().force_step();
+
+        return "Continue execution";
+    }
+
+    if (command == "stop") {
+        machine.get_cpu().set_state(Cpu::State::Stopped);
+        return "Stop execution";
+    }
+
+    if (str_starts_with(command, "break ") || str_starts_with(command, "b ")) {
+        std::string arg = command.substr(command.find(' ') + 1);
+        word_t address;
+        if (parse_address(arg, address)) {
+            machine.get_breakpoints().add_exec(address);
+            return fmt_hex(address, 4, "") + " added to breakpoints";
+        }
+        else {
+            return "Invalid address: '" + arg + "'";
+        }
+    }
+
+    if (str_starts_with(command, "read ")) {
+        std::string arg = command.substr(command.find(' ') + 1);
+        word_t address;
+        if (parse_address(arg, address)) {
+            machine.get_breakpoints().add_read(address);
+            return fmt_hex(address, 4, "") + " added to read watchpoints";
+        }
+        else {
+            return "Invalid address: '" + arg + "'";
+        }
+    }
+
+    if (str_starts_with(command, "write ")) {
+        std::string arg = command.substr(command.find(' ') + 1);
+        word_t address;
+        if (parse_address(arg, address)) {
+            machine.get_breakpoints().add_write(address);
+            return fmt_hex(address, 4, "") + " added to write watchpoints";
+        }
+        else {
+            return "Invalid address: '" + arg + "'";
+        }
+    }
+
+    if (str_starts_with(command, "del ")) {
+        std::string arg = command.substr(command.find(' ') + 1);
+        word_t address;
+        if (parse_address(arg, address)) {
+            machine.get_breakpoints().remove_exec(address);
+            machine.get_breakpoints().remove_read(address);
+            machine.get_breakpoints().remove_write(address);
+            return fmt_hex(address, 4, "") + " deleted from breakpoints";
+        }
+        else {
+            return "Invalid address: '" + arg + "'";
+        }
+    }
+
+    if (str_starts_with(command, "watch ") || str_starts_with(command, "w ")) {
+        std::string arg = command.substr(command.find(' ') + 1);
+        word_t address;
+        if (parse_address(arg, address)) {
+            for (auto it = watchpoints.begin(); it != watchpoints.end(); ++it) {
+                if (*it == address) {
+                    watchpoints.erase(it);
+                    break;
+                }
+            }
+            watchpoints.insert(watchpoints.begin(), address);
+            return fmt_hex(address, 4, "") + " added to watchpoints";
+        }
+        else {
+            return "Invalid address: '" + arg + "'";
+        }
+    }
+
+    if (str_starts_with(command, "mem ")) {
+        std::string arg = command.substr(command.find(' ') + 1);
+        word_t address;
+        if (parse_address(arg, address)) {
+            data_addr = address;
+            return "Dumping memory at address: " + fmt_hex(address, 4, "");
+        }
+        else {
+            return "Invalid address: '" + arg + "'";
+        }
     }
 
     /*
@@ -94,13 +197,48 @@ void Debugger::dump_status() {
     snapshot.watchpoints = watchpoints;
 
     // render it and display it
-    StatusScreen screen(memory, symtab, disasm);
+    StatusScreen screen(machine.get_cpu(), memory, symtab, disasm);
     screen.update(snapshot);
     std::string status_dump = screen.get_image();
     if (status_dump != last_status_dump) {
         last_status_dump = status_dump;
         printf("%s%s", HOME, status_dump.c_str());
     }
+}
+
+bool Debugger::parse_address(std::string arg, word_t& address) const {
+    arg = str_trim(arg);
+    while (!arg.empty() && std::isspace(arg.front())) {
+        arg.erase(arg.begin());
+    }
+
+    if (arg.empty()) {
+        return false;
+    }
+
+    if (arg.front() == '$' && arg.size() > 1 && isxdigit(arg[1])) {
+        // hex
+        arg.erase(arg.begin());
+        if (arg.empty()) {
+            return false;
+        }
+        address = WORD(strtol(arg.c_str(), NULL, 16));
+        return true;
+    }
+    else if (std::isdigit(arg.front())) {
+        // decimal
+        address = WORD(strtol(arg.c_str(), NULL, 10));
+        return true;
+    }
+    else {
+        // symbol
+        const Symbol* symbol = symtab.get(arg);
+        if (symbol != nullptr) {
+            address = WORD(symbol->value);
+            return true;
+        }
+    }
+    return false;
 }
 
 void DebugServer::start(uint16_t port) {

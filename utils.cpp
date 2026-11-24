@@ -28,10 +28,13 @@ std::string fmt_hex(int value, int digits, const std::string& prefix) {
 }
 
 std::string fmt_with_commas(uint64_t value) {
-    std::ostringstream oss;
-    oss.imbue(std::locale(""));
-    oss << std::fixed << value;
-    return oss.str();
+    std::string s = std::to_string(value);
+
+    for (int i = static_cast<int>(s.size()) - 3; i > 0; i -= 3) {
+        s.insert(i, ",");
+    }
+
+    return s;
 }
 
 std::string str_tolower(std::string str) {

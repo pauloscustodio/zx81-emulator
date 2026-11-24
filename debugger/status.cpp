@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <vector>
 
 static constexpr int RegistersRow = 0;
 static constexpr int RegistersCol = 0;
@@ -105,9 +106,9 @@ std::string AsciiScreen::get_image() const {
     return result;
 }
 
-StatusScreen::StatusScreen(const Memory& memory,
+StatusScreen::StatusScreen(const Cpu& cpu, const Memory& memory,
                            const SymbolTable& symtab, const Disassembler& disasm)
-    : memory(memory), symtab(symtab), disasm(disasm) {
+    : cpu(cpu), memory(memory), symtab(symtab), disasm(disasm) {
 }
 
 void StatusScreen::update(const DebuggerSnapshot& snapshot) {
@@ -117,8 +118,7 @@ void StatusScreen::update(const DebuggerSnapshot& snapshot) {
     update_memory(snapshot.data_addr);
     update_disassembly(snapshot.regs.pc);
     update_watchpoints(snapshot.watchpoints);
-    update_status(snapshot.cycles, snapshot.frames_count, snapshot.cycles_per_frame,
-                  snapshot.slow);
+    update_status(snapshot);
 }
 
 void StatusScreen::update_registers(const Registers& regs) {
@@ -163,16 +163,16 @@ void StatusScreen::update_stack(word_t sp) {
     for (int i = 0; i < StackHeight - 2; i++) {
         word_t addr = WORD(sp - 2 * i);
         putf(StackRow + StackHeight - 2 - i, StackCol + 1, "%04x: %c%04x",
-             addr, addr == sp ? '>' : ' ', memory.read16(addr));
+             addr, addr == sp ? '>' : ' ', memory.force_read16(addr));
     }
 }
 
 void StatusScreen::update_sysvars() {
     auto byte = [&](int addr) {
-        return memory.read8(addr);
+        return memory.force_read8(addr);
     };
     auto word = [&](int addr) {
-        return memory.read16(addr);
+        return memory.force_read16(addr);
     };
     draw_box(SysvarsRow, SysvarsCol, SysvarsWidth, SysvarsHeight,
              "System Variables");
@@ -207,7 +207,7 @@ void StatusScreen::update_sysvars() {
 
 void StatusScreen::update_memory(word_t data_addr) {
     auto byte = [&](int addr) {
-        return memory.read8(addr);
+        return memory.force_read8(addr);
     };
     draw_box(DataRow, DataCol, DataWidth, DataHeight, "Memory");
     for (size_t i = 0; i < 8 * (DataHeight - 2); i += 8) {
@@ -227,7 +227,7 @@ void StatusScreen::update_memory(word_t data_addr) {
 
 void StatusScreen::update_disassembly(word_t pc) {
     draw_box(CodeRow, CodeCol, CodeWidth, CodeHeight, "Disassembly");
-    word_t addr = pc;
+    word_t addr = cpu.previous_instr(pc, 2);
     for (int i = 0; i < CodeHeight - 2; ++i) {
         AsmInstr instr = disasm.disassemble(addr);
         std::string formatted = disasm.format(instr, pc);
@@ -247,7 +247,7 @@ void StatusScreen::update_watchpoints(const std::vector<word_t>& watchpoints) {
         int col = WatchCol + 1 + (i / num_rows) * 15;
 
         word_t addr = watchpoints[i];
-        word_t value = memory.read16(addr);
+        word_t value = memory.force_read16(addr);
         const Symbol* symbol = symtab.get_first(addr);
         if (symbol != nullptr) {
             snprintf(buffer_label, sizeof(buffer_label), "%-10.10s", symbol->name.c_str());
@@ -260,15 +260,38 @@ void StatusScreen::update_watchpoints(const std::vector<word_t>& watchpoints) {
     }
 }
 
-void StatusScreen::update_status(Cycles cycles, Frames frames,
-                                 Cycles cycles_per_frame, bool slow) {
+void StatusScreen::update_status(const DebuggerSnapshot& snapshot) {
     draw_box(StatusRow, StatusCol, StatusWidth, StatusHeight, "Status");
-    std::string cycles_str = fmt_with_commas(cycles);
-    std::string frames_str = fmt_with_commas(frames);
-    std::string cycles_per_frame_str = fmt_with_commas(cycles_per_frame);
+    std::string cycles_str = fmt_with_commas(snapshot.cycles);
+    std::string frames_str = fmt_with_commas(snapshot.frames_count);
+    std::string cycles_per_frame_str = fmt_with_commas(snapshot.cycles_per_frame);
     putf(StatusRow + 1, StatusCol + 1, "Cycles%18s|", cycles_str.c_str());
     putf(StatusRow + 2, StatusCol + 1, "Frames%18s|", frames_str.c_str());
     putf(StatusRow + 3, StatusCol + 1, "Cycles/Frame%12s|",
          cycles_per_frame_str.c_str());
-    putf(StatusRow + 1, StatusCol + 26, "Mode%19s|", slow ? "SLOW" : "FAST");
+    putf(StatusRow + 1, StatusCol + 26, "Mode%19s|",
+         snapshot.slow ? "SLOW" : "FAST");
+    putf(StatusRow + 2, StatusCol + 26, "%-23s|",
+         snapshot.cpu_state == Cpu::State::Stopped ? "STOP" : "RUN");
+    if (snapshot.cpu_state == Cpu::State::Stopped) {
+        std::string reason_str;
+        switch (snapshot.cpu_stop_reason) {
+        case Cpu::StopReason::None:
+            reason_str = "";
+            break;
+        case Cpu::StopReason::Request:
+            reason_str = "";
+            break;
+        case Cpu::StopReason::Breakpoint:
+            reason_str = "Break @ " + fmt_hex(snapshot.cpu_stop_addr, 4, "");
+            break;
+        case Cpu::StopReason::MemoryRead:
+            reason_str = "Memory read @ " + fmt_hex(snapshot.cpu_stop_addr, 4, "");
+            break;
+        case Cpu::StopReason::MemoryWrite:
+            reason_str = "Memory write @ " + fmt_hex(snapshot.cpu_stop_addr, 4, "");
+            break;
+        }
+        putf(StatusRow + 3, StatusCol + 26, "%-23s|", reason_str.c_str());
+    }
 }

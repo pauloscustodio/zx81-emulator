@@ -6,7 +6,9 @@
 
 #pragma once
 
+#include "breakpoints.h"
 #include "zx81.h"
+#include <bitset>
 #include <string>
 #include <vector>
 
@@ -36,22 +38,46 @@ struct Registers {
 
 class Cpu {
 public:
-    explicit Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps);
+    enum class State { Stopped, Running };
+    enum class StopReason { None, Request, Breakpoint, MemoryRead, MemoryWrite };
+
+    explicit Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps,
+                 const Breakpoints& breakpoints);
     virtual ~Cpu();
 
     void reset();
     void step();
+
+    // ignore breakpoints and traps, for debugging
+    void force_step();
+
     void exec_ret();
+    word_t previous_instr(word_t addr, int n = 1)const;
 
     Registers get_registers() const;
     void set_registers(const Registers& regs);
+
+    // breakpoints
+    State get_state() const;
+    StopReason get_stop_reason() const;
+    word_t get_stop_addr() const;
+
+    void set_state(State new_state);
 
 private:
     Memory& memory;
     Ports& ports;
     Clock& clock;
     Traps& traps;
+    const Breakpoints& breakpoints;
     void* z80ctx = nullptr;
+    std::bitset<MemSize> start_instr;
+
+    State state = State::Stopped;
+    StopReason stop_reason = StopReason::None;
+    word_t stop_addr = 0;
+
+    void stop(StopReason reason, word_t addr);
 
     static byte_t mread(struct _z80_cpu_context* cpu, word_t addr, int m1_state,
                         void* user_data);

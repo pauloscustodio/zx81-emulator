@@ -41,7 +41,7 @@ private:
     std::vector<word_t> watchpoints;
     std::string last_status_dump;
 
-
+    bool parse_address(std::string arg, word_t& address) const;
 };
 
 class DebugServer {

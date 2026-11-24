@@ -137,7 +137,7 @@ debugger/consts.h: rom/zx81_edition3.map tools/make_consts.pl Makefile
 
 rom/zx81_edition3.map: rom/zx81_edition3.asm Makefile
 ifeq ($(DEVELOPER),1)
-	z88dk-z80asm -b -m $<
+	z88dk-z80asm -b -l -m $<
 	diff rom/zx81_edition3.rom rom/zx81_edition3.bin
 endif
 

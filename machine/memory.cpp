@@ -8,6 +8,10 @@
 #include "zx81.h"
 #include <cstring>
 
+Memory::Memory(const Breakpoints& breakpoints)
+    : breakpoints(breakpoints)
+{}
+
 void Memory::add_rom(const byte_t* data, int size) {
     memcpy(mem, data, size);
     rom_size = size;
@@ -23,19 +27,25 @@ byte_t Memory::fetch8(word_t addr) const {
         return (b & 0x40) != 0 ? b : 0;
     }
 
-    return read8(addr);
-}
-
-byte_t Memory::read8(word_t addr) const {
-    if (is_video_mirror(addr)) {
-        return mem[addr & 0x7fff];
-    }
-
     if (is_rom(addr) || is_ram(addr)) {
         return mem[addr];
     }
 
     return 0;
+}
+
+byte_t Memory::read8(word_t addr) const {
+    // check for breakpoints
+    if (breakpoints.has_read(addr)) {
+        hit_read_breakpoint_ = true;
+        breakpoint_addr_ = addr;
+    }
+
+    if (is_video_mirror(addr)) {
+        return mem[addr & 0x7fff];
+    }
+
+    return force_read8(addr);
 }
 
 word_t Memory::read16(word_t addr) const {
@@ -44,7 +54,27 @@ word_t Memory::read16(word_t addr) const {
     return TO_WORD(high, low);
 }
 
+byte_t Memory::force_read8(word_t addr) const {
+    if (is_rom(addr) || is_ram(addr)) {
+        return mem[addr];
+    }
+
+    return 0;
+}
+
+word_t Memory::force_read16(word_t addr) const {
+    byte_t low = force_read8(addr);
+    byte_t high = force_read8(addr + 1);
+    return TO_WORD(high, low);
+}
+
 void Memory::write8(word_t addr, byte_t value) {
+    // check for breakpoints
+    if (breakpoints.has_write(addr)) {
+        hit_write_breakpoint_ = true;
+        breakpoint_addr_ = addr;
+    }
+
     // don't modify ROM
     if (is_ram(addr)) {
         mem[addr] = value;
@@ -66,6 +96,24 @@ byte_t* Memory::get_mem() {
 
 size_t Memory::size() const {
     return sizeof(mem);
+}
+
+bool Memory::hit_read_breakpoint() const {
+    return hit_read_breakpoint_;
+}
+
+bool Memory::hit_write_breakpoint() const {
+    return hit_write_breakpoint_;
+}
+
+word_t Memory::get_breakpoint_addr() const {
+    return breakpoint_addr_;
+}
+
+void Memory::clear_breakpoint_flags() {
+    hit_read_breakpoint_ = false;
+    hit_write_breakpoint_ = false;
+    breakpoint_addr_ = 0;
 }
 
 bool Memory::is_rom(word_t addr) const {

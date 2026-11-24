@@ -19,8 +19,9 @@
 
 Machine::Machine(Clock& clock)
     : clock(clock),
+      memory(breakpoints),
       ports(keyboard),
-      cpu(memory, ports, clock, traps),
+      cpu(memory, ports, clock, traps, breakpoints),
       files(cpu, memory) {
 
     // init rom
@@ -111,6 +112,14 @@ Machine::Machine(Clock& clock)
     cpu.reset();
 }
 
+Breakpoints& Machine::get_breakpoints() {
+    return breakpoints;
+}
+
+Cpu& Machine::get_cpu() {
+    return cpu;
+}
+
 // run a single screen-frame of emulation
 void Machine::run_frame() {
     // Execute one frame worth of Z80 clock cycles.
@@ -179,10 +188,12 @@ void Machine::run_frame() {
     }
 
     // decrement FRAMES
-    word_t frames = memory.read16(FRAMES);
-    frames--;
-    frames |= 0x8000; // bit 15 must be set
-    memory.write16(FRAMES, frames);
+    if (get_cpu().get_state() == Cpu::State::Running) {
+        word_t frames = memory.read16(FRAMES);
+        frames--;
+        frames |= 0x8000; // bit 15 must be set
+        memory.write16(FRAMES, frames);
+    }
 
     // scan keyboard after computer initialized
     if (init_finished) {
@@ -302,10 +313,12 @@ DebuggerSnapshot Machine::get_debugger_snapshot() const {
     snapshot.frames_count = frames_count;
     snapshot.cycles_per_frame = get_cycles_per_frame();
     snapshot.slow = slow_mode();
+    snapshot.cpu_state = cpu.get_state();
+    snapshot.cpu_stop_reason = cpu.get_stop_reason();
+    snapshot.cpu_stop_addr = cpu.get_stop_addr();
     return snapshot;
 }
 
 bool Machine::printer_active() const {
     return (memory.read8(FLAGS) & 2) != 0;
 }
-

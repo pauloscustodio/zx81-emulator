@@ -91,12 +91,22 @@ void App::configure() {
     }
 
     // start debugger server if requested
-    if (debug_port != -1) {
+    if (is_debug_mode()) {
         debug_server->start(debug_port);
     }
 }
 
 void App::run() {
+    // stop CPU if debugger is enabled, otherwise resume CPU
+    if (is_debug_mode()) {
+        std::cout << "Debugger server listening on port " << debug_port << std::endl;
+        machine->get_cpu().set_state(Cpu::State::Stopped);
+    }
+    else {
+        machine->get_cpu().set_state(Cpu::State::Running);
+    }
+
+    // run the main loop
     if (headless_mode) {
         run_headless();
     }

@@ -16,6 +16,7 @@
 #include "traps.h"
 #include "zx81.h"
 #include <string>
+#include <vector>
 
 struct DebuggerSnapshot {
     Registers regs;
@@ -25,11 +26,17 @@ struct DebuggerSnapshot {
     Frames frames_count;
     Cycles cycles_per_frame;
     bool slow;
+    Cpu::State cpu_state;
+    Cpu::StopReason cpu_stop_reason;
+    word_t cpu_stop_addr;
 };
 
 class Machine {
 public:
     explicit Machine(Clock& clock);
+
+    Breakpoints& get_breakpoints();
+    Cpu& get_cpu();
 
     void run_frame();
     void key_down(kbd_state_t key);
@@ -54,6 +61,7 @@ public:
 
 private:
     Clock& clock;
+    Breakpoints breakpoints;
     Memory memory;
     Keyboard keyboard;
     Ports ports;

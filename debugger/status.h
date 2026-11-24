@@ -63,7 +63,7 @@ private:
 
 class StatusScreen : public AsciiScreen {
 public:
-    StatusScreen(const Memory& memory, const SymbolTable& symtab,
+    StatusScreen(const Cpu& cpu, const Memory& memory, const SymbolTable& symtab,
                  const Disassembler& disasm);
 
     void update(const DebuggerSnapshot& snapshot);
@@ -73,10 +73,10 @@ public:
     void update_memory(word_t data_addr);
     void update_disassembly(word_t pc);
     void update_watchpoints(const std::vector<word_t>& watchpoints);
-    void update_status(Cycles cycles, Frames frames, Cycles cycles_per_frame,
-                       bool slow);
+    void update_status(const DebuggerSnapshot& snapshot);
 
 private:
+    const Cpu& cpu;
     const Memory& memory;
     const SymbolTable& symtab;
     const Disassembler& disasm;

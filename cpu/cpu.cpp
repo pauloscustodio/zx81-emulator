@@ -18,6 +18,8 @@
 #include <string>
 #include <vector>
 
+static constexpr int StoppedCycles = 4;
+
 std::string Registers::to_string() const {
     std::ostringstream oss;
     oss << "AF:  " << fmt_hex(af, 4)
@@ -132,8 +134,10 @@ void Registers::from_bytes(const std::vector<byte_t>& bytes) {
     iff2 = bytes[index++];
 }
 
-Cpu::Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps)
-    : memory(memory), ports(ports), clock(clock), traps(traps) {
+Cpu::Cpu(Memory& memory, Ports& ports, Clock& clock, Traps& traps,
+         const Breakpoints& breakpoints)
+    : memory(memory), ports(ports), clock(clock), traps(traps),
+      breakpoints(breakpoints) {
     z80ctx = z80ex_create(mread, this,
                           mwrite, this,
                           pread, this,
@@ -151,16 +155,56 @@ Cpu::~Cpu() {
 
 void Cpu::reset() {
     z80ex_reset(static_cast<Z80EX_CONTEXT*>(z80ctx));
+    state = State::Stopped;
+    stop_reason = StopReason::None;
+    stop_addr = 0;
 }
 
 void Cpu::step() {
+    // check if the CPU is stopped due to a breakpoint or memory access
+    if (state == State::Stopped) {
+        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+        return;
+    }
+
     // handle traps before executing the next instruction
     Registers regs = get_registers();
     if (auto trap = traps.find(regs.pc)) {
         trap(*this);
     }
 
+    // next handle breakpoints
+    regs = get_registers(); // refresh registers after trap execution
+    if (breakpoints.has_exec(regs.pc)) {
+        stop(StopReason::Breakpoint, regs.pc);
+        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+        return;
+    }
+
+    // handle memory read/write breakpoints
+    if (memory.hit_write_breakpoint()) {
+        stop(StopReason::MemoryWrite, memory.get_breakpoint_addr());
+        memory.clear_breakpoint_flags();
+        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+        return;
+    }
+
+    if (memory.hit_read_breakpoint()) {
+        stop(StopReason::MemoryRead, memory.get_breakpoint_addr());
+        memory.clear_breakpoint_flags();
+        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+        return;
+    }
+
     // then execute the next instruction
+    force_step();
+}
+
+void Cpu::force_step() {
+    // define as executable address
+    word_t pc = z80ex_get_reg(static_cast<Z80EX_CONTEXT*>(z80ctx), regPC);
+    start_instr.set(pc);
+
     int cycles = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
     clock.add_cycles(cycles);
 }
@@ -170,6 +214,29 @@ void Cpu::exec_ret() {
     regs.pc = memory.read16(regs.sp);
     regs.sp += 2;
     set_registers(regs);
+}
+
+word_t Cpu::previous_instr(word_t addr, int n)const {
+    if (n < 1) {
+        return addr;
+    }
+    else if (n == 1) {
+        // find the previous instruction by scanning backwards for an executable address
+        for (int i = 1; i <= 4 && addr >= i; ++i) {
+            word_t prev_addr = WORD(addr - i);
+            if (start_instr.test(prev_addr)) {
+                return prev_addr;
+            }
+        }
+
+        // not found, return the current address
+        return addr;
+    }
+    else {
+        // recursively find the previous instruction n times
+        word_t prev_addr = previous_instr(addr);
+        return previous_instr(prev_addr, n - 1);
+    }
 }
 
 Registers Cpu::get_registers() const {
@@ -216,6 +283,38 @@ void Cpu::set_registers(const Registers& regs) {
     z80ex_set_reg(cpu, regIM, regs.im);
     z80ex_set_reg(cpu, regIFF1, regs.iff1);
     z80ex_set_reg(cpu, regIFF2, regs.iff2);
+}
+
+Cpu::State Cpu::get_state() const {
+    return state;
+}
+
+Cpu::StopReason Cpu::get_stop_reason() const {
+    return stop_reason;
+}
+
+word_t Cpu::get_stop_addr() const {
+    return stop_addr;
+}
+
+void Cpu::set_state(State new_state) {
+    state = new_state;
+    if (state == State::Running) {
+        stop_reason = StopReason::None;
+        stop_addr = 0;
+    }
+    else {
+        Registers regs = get_registers();
+        state = State::Stopped;
+        stop_reason = StopReason::Request;
+        stop_addr = regs.pc;
+    }
+}
+
+void Cpu::stop(StopReason reason, word_t addr) {
+    state = State::Stopped;
+    stop_reason = reason;
+    stop_addr = addr;
 }
 
 byte_t Cpu::mread(Z80EX_CONTEXT* cpu, word_t addr, int m1_state,
