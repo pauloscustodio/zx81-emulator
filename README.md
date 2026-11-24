@@ -24,7 +24,7 @@ This project is released under the GNU General Public License, version 2 or late
 ## Command-line usage
 
 ```bash
-zx81 zx81 [-d port] [-h] [-s] [file.p|file.dump|file.bas]
+zx81 [-d port] [-h] [-s] [file.p|file.dump|file.bas]
 ```
 
 Options:
