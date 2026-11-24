@@ -36,6 +36,7 @@ public:
     explicit Machine(Clock& clock);
 
     Breakpoints& get_breakpoints();
+    const Memory& get_memory() const;
     Cpu& get_cpu();
 
     void run_frame();
@@ -47,16 +48,14 @@ public:
     void load_dump(const std::string& filename);
 
     Milliseconds frame_budget_ms() const;
+    Cycles get_cycles_per_frame() const;
     std::string get_screen_dump() const;
     const byte_t* get_frame_buffer() const;
     const byte_t* get_charset_buffer() const;
     bool is_chr128_mode() const;
     void set_master_slow_mode(bool enable);
     bool is_running() const;
-    Registers get_registers() const;
-    const Memory& get_memory() const;
     bool slow_mode() const;
-    Cycles get_cycles_per_frame() const;
     DebuggerSnapshot get_debugger_snapshot() const;
 
 private:

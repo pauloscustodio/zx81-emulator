@@ -101,6 +101,7 @@ static inline constexpr int DUMP_HOOK = 8190;
 static inline constexpr int  PRINT_A   = 0x0010;
 static inline constexpr int  PRINT_CH  = 0x07f1;
 static inline constexpr int  PRINT_SP  = 0x07f5;
+static inline constexpr int  DISPLAY_1 = 0x0229;
 static inline constexpr int  DISPLAY_5 = 0x02b5;
 static inline constexpr int  KEYBOARD  = 0x02bb;
 

@@ -49,11 +49,12 @@ std::string Debugger::execute_command(const std::string& command_) {
         return "Available commands:\n"
                "  [h]elp   - Show this help message\n"
                "  [q]uit   - Quit the debugger\n"
-               "  [r]egs   - Show CPU registers\n"
                "  [t]ype   - Type text on the machine\n"
                "  [c]ont   - Continue execution\n"
                "  [S]top   - Stop execution\n"
                "  [s]tep   - Step one instruction\n"
+               "  [n]next  - Step over one instruction\n"
+               "  [r]eturn - Step out of current function\n"
                "  [b]reak $xx|dd|NAME - Add breakpoint\n"
                "  [R]ead  $xx|dd|NAME - Add break on read\n"
                "  [W]rite $xx|dd|NAME - Add break on write\n"
@@ -66,11 +67,6 @@ std::string Debugger::execute_command(const std::string& command_) {
     if (command == "quit" || command == "q") {
         running = false;
         return "Quitting emulator";
-    }
-
-    if (command == "regs" || command == "r") {
-        Registers regs = machine.get_registers();
-        return regs.to_string();
     }
 
     if (str_starts_with(command, "type ") || str_starts_with(command, "t ")) {
@@ -96,7 +92,34 @@ std::string Debugger::execute_command(const std::string& command_) {
     if (command == "step" || command == "s") {
         machine.get_cpu().set_state(Cpu::State::Stopped);
         machine.get_cpu().force_step();
-        return "Stop execution";
+        return "Step one instruction";
+    }
+
+    if (command == "next" || command == "n") {
+        machine.get_cpu().set_state(Cpu::State::Stopped);
+        Registers regs = machine.get_cpu().get_registers();
+        word_t next_addr = machine.get_cpu().next_instr(regs.pc);
+
+        // run one instruction to pass the current breakpoint if any
+        machine.get_cpu().force_step();
+        regs = machine.get_cpu().get_registers();
+        if (regs.pc == next_addr) {
+            // done
+        }
+        else {
+            // we entered a subroutine or jumped back
+            machine.get_cpu().add_temp_breakpoint(next_addr);
+            machine.get_cpu().set_state(Cpu::State::Running);
+        }
+        return "Step over one instruction";
+    }
+
+    if (command == "return" || command == "r") {
+        Registers regs = machine.get_cpu().get_registers();
+        word_t next_addr = memory.read16(regs.sp);
+        machine.get_cpu().add_temp_breakpoint(next_addr);
+        machine.get_cpu().set_state(Cpu::State::Running);
+        return "Step out of current function";
     }
 
     if (str_starts_with(command, "break ") || str_starts_with(command, "b ")) {
@@ -281,13 +304,6 @@ void DebugServer::poll(Debugger& debugger) {
 
         if (bytes_received > 0) {
             buffer[bytes_received] = '\0';
-
-            // show what we recieved
-            for (int i = 0; i < bytes_received; ++i) {
-                std::cout << fmt_hex(buffer[i], 2, "") << " ";
-            }
-            std::cout << std::endl;
-
             std::string response = debugger.execute_command(buffer);
             if (!response.empty()) {
                 send(response + "\n> ");

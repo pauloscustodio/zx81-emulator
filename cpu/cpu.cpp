@@ -6,9 +6,11 @@
 
 #include "clock.h"
 #include "cpu.h"
+#include "disasm.h"
 #include "machine.h"
 #include "memory.h"
 #include "ports.h"
+#include "symbols.h"
 #include "traps.h"
 #include "utils.h"
 #include "z80ex.h"
@@ -161,57 +163,11 @@ void Cpu::reset() {
 }
 
 void Cpu::step() {
-    // check if the CPU is stopped due to a breakpoint or memory access
-    if (state == State::Stopped) {
-        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
-        return;
-    }
-
-    // handle traps before executing the next instruction
-    Registers regs = get_registers();
-    if (auto trap = traps.find(regs.pc)) {
-        trap(*this);
-    }
-
-    // next handle breakpoints
-    regs = get_registers(); // refresh registers after trap execution
-    if (breakpoints.has_exec(regs.pc)) {
-        stop(StopReason::Breakpoint, regs.pc);
-        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
-        return;
-    }
-
-    // handle memory read/write breakpoints
-    if (memory.hit_write_breakpoint()) {
-        stop(StopReason::MemoryWrite, memory.get_breakpoint_addr());
-        memory.clear_breakpoint_flags();
-        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
-        return;
-    }
-
-    if (memory.hit_read_breakpoint()) {
-        stop(StopReason::MemoryRead, memory.get_breakpoint_addr());
-        memory.clear_breakpoint_flags();
-        clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
-        return;
-    }
-
-    // then execute the next instruction
-    force_step();
+    step(/*check_breakpoints=*/true);
 }
 
 void Cpu::force_step() {
-    // define as executable address
-    word_t pc = z80ex_get_reg(static_cast<Z80EX_CONTEXT*>(z80ctx), regPC);
-    start_instr.set(pc);
-
-    // z80ex_step() executes either prefix or opcode
-    // z80ex_last_op_type() verifies if the instruction is complete
-    do {
-        int cycles = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
-        clock.add_cycles(cycles);
-    }
-    while (z80ex_last_op_type(static_cast<Z80EX_CONTEXT*>(z80ctx)) != 0);
+    step(/*check_breakpoints=*/false);
 }
 
 void Cpu::exec_ret() {
@@ -219,6 +175,10 @@ void Cpu::exec_ret() {
     regs.pc = memory.read16(regs.sp);
     regs.sp += 2;
     set_registers(regs);
+}
+
+void Cpu::add_temp_breakpoint(word_t addr) {
+    temp_breakpoints.set(addr);
 }
 
 word_t Cpu::previous_instr(word_t addr, int n)const {
@@ -241,6 +201,22 @@ word_t Cpu::previous_instr(word_t addr, int n)const {
         // recursively find the previous instruction n times
         word_t prev_addr = previous_instr(addr);
         return previous_instr(prev_addr, n - 1);
+    }
+}
+
+word_t Cpu::next_instr(word_t addr, int n) const {
+    if (n < 1) {
+        return addr;
+    }
+    else {
+        // need to disassemble the instruction at addr to find its size
+        SymbolTable dummy;
+        Disassembler disasm(memory, dummy);
+        for (int i = 0; i < n; i++) {
+            AsmInstr instr = disasm.disassemble(addr);
+            addr += instr.size;
+        }
+        return addr;
     }
 }
 
@@ -324,6 +300,68 @@ void Cpu::stop(StopReason reason, word_t addr) {
     state = State::Stopped;
     stop_reason = reason;
     stop_addr = addr;
+}
+
+void Cpu::step(bool check_breakpoints) {
+    // define as executable address
+    word_t pc = z80ex_get_reg(static_cast<Z80EX_CONTEXT*>(z80ctx), regPC);
+    start_instr.set(pc);
+
+    if (check_breakpoints) {
+        // check if the CPU is stopped due to a breakpoint or memory access
+        if (state == State::Stopped) {
+            clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+            return;
+        }
+    }
+
+    // handle traps before executing the next instruction
+    Registers regs = get_registers();
+    if (auto trap = traps.find(regs.pc)) {
+        trap(*this);
+        regs = get_registers(); // refresh registers after trap execution
+    }
+
+    // next handle breakpoints
+    if (check_breakpoints) {
+        // check temporary breakpoints (next, return commands from debugger)
+        if (temp_breakpoints.test(regs.pc)) {
+            temp_breakpoints.reset(regs.pc);    // clear when hit
+            stop(StopReason::Breakpoint, regs.pc);
+            clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+            return;
+        }
+
+        // check user breakpoints
+        if (breakpoints.has_exec(regs.pc)) {
+            stop(StopReason::Breakpoint, regs.pc);
+            clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+            return;
+        }
+
+        // handle memory read/write breakpoints
+        if (memory.hit_write_breakpoint()) {
+            stop(StopReason::MemoryWrite, memory.get_breakpoint_addr());
+            memory.clear_breakpoint_flags();
+            clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+            return;
+        }
+
+        if (memory.hit_read_breakpoint()) {
+            stop(StopReason::MemoryRead, memory.get_breakpoint_addr());
+            memory.clear_breakpoint_flags();
+            clock.add_cycles(StoppedCycles); // advance machine time while CPU is stopped
+            return;
+        }
+    }
+
+    // z80ex_step() executes either prefix or opcode
+    // z80ex_last_op_type() verifies if the instruction is complete
+    do {
+        int cycles = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
+        clock.add_cycles(cycles);
+    }
+    while (z80ex_last_op_type(static_cast<Z80EX_CONTEXT*>(z80ctx)) != 0);
 }
 
 byte_t Cpu::mread(Z80EX_CONTEXT* cpu, word_t addr, int m1_state,

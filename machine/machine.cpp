@@ -27,11 +27,11 @@ Machine::Machine(Clock& clock)
     // init rom
     memory.add_rom(rom, sizeof(rom));
 
-    // make DISPLAY_5 return immediatelly
-    // so that it does not execute the display file
-    traps.add(DISPLAY_5, [](Cpu & cpu) {
+    // make display routines return immediatelly
+    auto return_trap = [this](Cpu&) {
         cpu.exec_ret();
-    });
+    };
+    traps.add(DISPLAY_5, return_trap);
 
     // exit emulation if EXIT_HOOK is called
     traps.add(EXIT_HOOK, [this](Cpu & cpu) {
@@ -286,10 +286,6 @@ void Machine::set_master_slow_mode(bool enable) {
 
 bool Machine::is_running() const {
     return running;
-}
-
-Registers Machine::get_registers() const {
-    return cpu.get_registers();
 }
 
 const Memory& Machine::get_memory() const {

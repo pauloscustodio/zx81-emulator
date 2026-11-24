@@ -52,7 +52,6 @@ public:
     void force_step();
 
     void exec_ret();
-    word_t previous_instr(word_t addr, int n = 1)const;
 
     Registers get_registers() const;
     void set_registers(const Registers& regs);
@@ -64,6 +63,12 @@ public:
 
     void set_state(State new_state);
 
+    // adds a breakpoint that is removed when reached
+    void add_temp_breakpoint(word_t addr);
+
+    word_t previous_instr(word_t addr, int n = 1) const;
+    word_t next_instr(word_t addr, int n = 1) const;
+
 private:
     Memory& memory;
     Ports& ports;
@@ -72,12 +77,14 @@ private:
     const Breakpoints& breakpoints;
     void* z80ctx = nullptr;
     std::bitset<MemSize> start_instr;
+    std::bitset<MemSize> temp_breakpoints;
 
     State state = State::Stopped;
     StopReason stop_reason = StopReason::None;
     word_t stop_addr = 0;
 
     void stop(StopReason reason, word_t addr);
+    void step(bool check_breakpoints);
 
     static byte_t mread(struct _z80_cpu_context* cpu, word_t addr, int m1_state,
                         void* user_data);
