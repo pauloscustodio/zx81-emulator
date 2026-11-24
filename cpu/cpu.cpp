@@ -205,8 +205,13 @@ void Cpu::force_step() {
     word_t pc = z80ex_get_reg(static_cast<Z80EX_CONTEXT*>(z80ctx), regPC);
     start_instr.set(pc);
 
-    int cycles = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
-    clock.add_cycles(cycles);
+    // z80ex_step() executes either prefix or opcode
+    // z80ex_last_op_type() verifies if the instruction is complete
+    do {
+        int cycles = z80ex_step(static_cast<Z80EX_CONTEXT*>(z80ctx));
+        clock.add_cycles(cycles);
+    }
+    while (z80ex_last_op_type(static_cast<Z80EX_CONTEXT*>(z80ctx)) != 0);
 }
 
 void Cpu::exec_ret() {
@@ -298,6 +303,10 @@ word_t Cpu::get_stop_addr() const {
 }
 
 void Cpu::set_state(State new_state) {
+    if (state == new_state) {
+        return;
+    }
+
     state = new_state;
     if (state == State::Running) {
         stop_reason = StopReason::None;

@@ -45,20 +45,21 @@ std::string Debugger::execute_command(const std::string& command_) {
         return "";
     }
 
-    if (command == "help") {
+    if (command == "help" || command == "h") {
         return "Available commands:\n"
-               "  help   - Show this help message\n"
+               "  [h]elp   - Show this help message\n"
                "  [q]uit   - Quit the debugger\n"
-               "  regs     - Show CPU registers\n"
-               "  type     - Type text on the machine\n"
+               "  [r]egs   - Show CPU registers\n"
+               "  [t]ype   - Type text on the machine\n"
                "  [c]ont   - Continue execution\n"
-               "  stop     - Stop execution\n"
+               "  [S]top   - Stop execution\n"
+               "  [s]tep   - Step one instruction\n"
                "  [b]reak $xx|dd|NAME - Add breakpoint\n"
-               "  read    $xx|dd|NAME - Add break on read\n"
-               "  write   $xx|dd|NAME - Add break on write\n"
-               "  del     $xx|dd|NAME - Delete breakpoints\n"
+               "  [R]ead  $xx|dd|NAME - Add break on read\n"
+               "  [W]rite $xx|dd|NAME - Add break on write\n"
+               "  [d]el   $xx|dd|NAME - Delete breakpoints\n"
                "  [w]atch $xx|dd|NAME - Add watchpoint\n"
-               "  mem     $xx|dd|NAME - Show memory contents\n"
+               "  [m]em   $xx|dd|NAME - Show memory contents\n"
                ;
     }
 
@@ -67,13 +68,13 @@ std::string Debugger::execute_command(const std::string& command_) {
         return "Quitting emulator";
     }
 
-    if (command == "regs") {
+    if (command == "regs" || command == "r") {
         Registers regs = machine.get_registers();
         return regs.to_string();
     }
 
-    if (str_starts_with(command, "type ")) {
-        std::string text = command.substr(5);
+    if (str_starts_with(command, "type ") || str_starts_with(command, "t ")) {
+        std::string text = command.substr(command.find(' ') + 1);
         machine.paste(text + "\n");
         return "Typed text: " + text;
     }
@@ -87,8 +88,14 @@ std::string Debugger::execute_command(const std::string& command_) {
         return "Continue execution";
     }
 
-    if (command == "stop") {
+    if (command == "stop" || command == "S") {
         machine.get_cpu().set_state(Cpu::State::Stopped);
+        return "Stop execution";
+    }
+
+    if (command == "step" || command == "s") {
+        machine.get_cpu().set_state(Cpu::State::Stopped);
+        machine.get_cpu().force_step();
         return "Stop execution";
     }
 
@@ -104,7 +111,7 @@ std::string Debugger::execute_command(const std::string& command_) {
         }
     }
 
-    if (str_starts_with(command, "read ")) {
+    if (str_starts_with(command, "read ") || str_starts_with(command, "R ")) {
         std::string arg = command.substr(command.find(' ') + 1);
         word_t address;
         if (parse_address(arg, address)) {
@@ -116,7 +123,7 @@ std::string Debugger::execute_command(const std::string& command_) {
         }
     }
 
-    if (str_starts_with(command, "write ")) {
+    if (str_starts_with(command, "write ") || str_starts_with(command, "W ")) {
         std::string arg = command.substr(command.find(' ') + 1);
         word_t address;
         if (parse_address(arg, address)) {
@@ -128,7 +135,7 @@ std::string Debugger::execute_command(const std::string& command_) {
         }
     }
 
-    if (str_starts_with(command, "del ")) {
+    if (str_starts_with(command, "del ") || str_starts_with(command, "d ")) {
         std::string arg = command.substr(command.find(' ') + 1);
         word_t address;
         if (parse_address(arg, address)) {
@@ -160,7 +167,7 @@ std::string Debugger::execute_command(const std::string& command_) {
         }
     }
 
-    if (str_starts_with(command, "mem ")) {
+    if (str_starts_with(command, "mem ") || str_starts_with(command, "m ")) {
         std::string arg = command.substr(command.find(' ') + 1);
         word_t address;
         if (parse_address(arg, address)) {
@@ -172,15 +179,6 @@ std::string Debugger::execute_command(const std::string& command_) {
         }
     }
 
-    /*
-    else if (command == "mem") {
-        return memory.dump();
-    }
-    else if (command == "screen") {
-        return get_screen_dump();
-    }
-    else
-    */
     return "Unknown command: '" + command + "'";
 }
 
