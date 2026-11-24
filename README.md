@@ -24,11 +24,36 @@ This project is released under the GNU General Public License, version 2 or late
 ## Command-line usage
 
 ```bash
-zx81 [-s] [file.p|file.dump|file.bas]
+zx81 zx81 [-d port] [-h] [-s] [file.p|file.dump|file.bas]
 ```
 
 Options:
 
+- `-d port`: starts a TCP listener on the given port; on the client side connect
+  for example with `nc` and type `help`:
+```
+    $ ./zx81 -d 8112
+    $ nc localhost 8112
+    Welcome to the ZX81 Emulator Debugger!
+    > help
+    Available commands:
+    [h]elp   - Show this help message
+    [q]uit   - Quit the debugger
+    [t]ype   - Type text on the machine
+    [c]ont   - Continue execution
+    [S]top   - Stop execution
+    [s]tep   - Step one instruction
+    [n]next  - Step over one instruction
+    [r]eturn - Step out of current function
+    [b]reak $xx|dd|NAME - Add breakpoint
+    [R]ead  $xx|dd|NAME - Add break on read
+    [W]rite $xx|dd|NAME - Add break on write
+    [d]el   $xx|dd|NAME - Delete breakpoints
+    [w]atch $xx|dd|NAME - Add watchpoint
+    [m]em   $xx|dd|NAME - Show memory contents
+```
+- `-h`: run in headless mode, i.e. the emulator runs but the main window
+  is not created. Usefull for batch execution and CI runs.
 - `-s`: run at normal ZX81 speed when the emulator is not in FAST mode.
 - `file.p`: load a BASIC program file on startup, as if `LOAD "file"` had been typed.
 - `file.dump`: restore emulator state from a saved dump.
@@ -79,7 +104,7 @@ This emulator focuses on the default text-based ZX81 screen and quick program ex
 
 ## Technology
 
-C++20, SDL2
+C++20, SDL3, SDL_Image
 
 ## Further work
 

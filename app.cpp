@@ -175,7 +175,7 @@ void App::throttle(Milliseconds start) {
 }
 
 void App::exit_usage() {
-    std::cerr << "Usage: zx81 [-d] [-s]" << std::endl;
+    std::cerr << "Usage: zx81 [-d port] [-h] [-s]" << std::endl;
     std::cerr << "Options:" << std::endl;
     std::cerr << "  -d <port>     Start debugger listening on the specified port"
               << std::endl;
