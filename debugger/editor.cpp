@@ -7,6 +7,7 @@
 #include "editor.h"
 #include "editor_locs.h"
 #include "zx81.h"
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 
@@ -17,14 +18,27 @@ EditorClient::EditorClient() {
 }
 
 void EditorClient::add(word_t addr, const std::string& filename, int line_num) {
-    Entry entry{ filename, line_num };
-    entries[addr] = entry;
+    auto it = std::find(filenames.begin(), filenames.end(), filename);
+    size_t filename_idx = 0;
+
+    if (it == filenames.end()) {
+        filenames.push_back(filename);
+        filename_idx = filenames.size() - 1;
+    }
+    else {
+        filename_idx = static_cast<size_t>(it - filenames.begin());
+    }
+
+    entries[addr] = Entry{ filename_idx, line_num };
 }
 
 void EditorClient::navigate_to(word_t addr) const {
     auto it = entries.find(addr);
     if (it != entries.end()) {
-        open_file(it->second.filename, it->second.line_num);
+        const auto& entry = it->second;
+        if (entry.filename_idx < filenames.size()) {
+            open_file(filenames[entry.filename_idx], entry.line_num);
+        }
     }
 }
 
