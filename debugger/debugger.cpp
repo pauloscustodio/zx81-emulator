@@ -25,10 +25,12 @@ static inline constexpr const char* HOME = "\033[H";
 
 Debugger::Debugger(Machine& machine, const Memory& memory,
                    DebugServer& debug_server,
-                   const SymbolTable& symtab, const Disassembler& disasm)
+                   const SymbolTable& symtab, const Disassembler& disasm,
+                   const EditorClient& editor_client)
     : machine(machine), memory(memory),
       debug_server(debug_server),
-      symtab(symtab), disasm(disasm) {
+      symtab(symtab), disasm(disasm),
+      editor_client(editor_client) {
 }
 
 void Debugger::poll() {
@@ -225,6 +227,16 @@ void Debugger::dump_status() {
         last_status_dump = status_dump;
         printf("%s%s", HOME, status_dump.c_str());
     }
+
+    // navigate to source code in editor if editor mode is enabled
+    if (editor_mode) {
+        word_t pc = snapshot.regs.pc;
+        editor_client.navigate_to(pc);
+    }
+}
+
+void Debugger::set_editor_mode(bool enable) {
+    editor_mode = enable;
 }
 
 bool Debugger::parse_address(std::string arg, word_t& address) const {

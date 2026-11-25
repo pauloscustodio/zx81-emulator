@@ -9,6 +9,7 @@
 #include "clock.h"
 #include "debugger.h"
 #include "disasm.h"
+#include "editor.h"
 #include "machine.h"
 #include "screen.h"
 #include "symbols.h"
@@ -37,6 +38,7 @@ private:
     std::unique_ptr<DebugServer> debug_server;
     std::unique_ptr<SymbolTable> symtab;
     std::unique_ptr<Disassembler> disasm;
+    std::unique_ptr<EditorClient> editor_client;
 
     // optional, only created if not in headless mode
     std::unique_ptr<Screen> screen;
@@ -44,6 +46,7 @@ private:
     int debug_port = -1;
     bool slow_mode = false;
     bool headless_mode = false;
+    bool editor_mode = false;
     std::vector<std::string> args;
 
     void run_headless();

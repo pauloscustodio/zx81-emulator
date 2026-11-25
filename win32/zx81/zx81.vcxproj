@@ -171,6 +171,8 @@
     <ClInclude Include="..\..\cpu\disasm.h" />
     <ClInclude Include="..\..\debugger\consts.h" />
     <ClInclude Include="..\..\debugger\debugger.h" />
+    <ClInclude Include="..\..\debugger\editor.h" />
+    <ClInclude Include="..\..\debugger\editor_locs.h" />
     <ClInclude Include="..\..\debugger\status.h" />
     <ClInclude Include="..\..\debugger\symbols.h" />
     <ClInclude Include="..\..\getopt.h" />
@@ -196,6 +198,7 @@
     <ClCompile Include="..\..\cpu\cpu.cpp" />
     <ClCompile Include="..\..\cpu\disasm.cpp" />
     <ClCompile Include="..\..\debugger\debugger.cpp" />
+    <ClCompile Include="..\..\debugger\editor.cpp" />
     <ClCompile Include="..\..\debugger\status.cpp" />
     <ClCompile Include="..\..\debugger\symbols.cpp" />
     <ClCompile Include="..\..\getopt.cpp" />

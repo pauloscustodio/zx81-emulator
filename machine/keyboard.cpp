@@ -9,7 +9,6 @@
 #include "memory.h"
 #include "zx81.h"
 #include <cctype>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <string_view>

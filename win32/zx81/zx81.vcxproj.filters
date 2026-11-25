@@ -111,6 +111,12 @@
     <ClInclude Include="..\..\machine\breakpoints.h">
       <Filter>Header Files\machine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\debugger\editor.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\debugger\editor_locs.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\zx81.cpp">
@@ -178,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="..\..\machine\breakpoints.cpp">
       <Filter>Source Files\machine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\debugger\editor.cpp">
+      <Filter>Source Files\debugger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

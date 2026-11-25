@@ -23,19 +23,23 @@ App::App() {
     debug_server = std::make_unique<DebugServer>();
     symtab = std::make_unique<SymbolTable>();
     disasm = std::make_unique<Disassembler>(machine->get_memory(), *symtab);
+    editor_client = std::make_unique<EditorClient>();
     debugger = std::make_unique<Debugger>(*machine, machine->get_memory(),
-                                          *debug_server, *symtab, *disasm);
+                                          *debug_server, *symtab, *disasm, *editor_client);
 }
 
 void App::parse_cmd_line(int argc, char* argv[]) {
     while (true) {
-        int c = mygetopt(argc, argv, "d:hs");
+        int c = mygetopt(argc, argv, "d:ehs");
         if (c == -1) {
             break;
         }
         switch (c) {
         case 'd':
             debug_port = std::stoi(optarg);
+            break;
+        case 'e':
+            editor_mode = true;
             break;
         case 'h':
             headless_mode = true;
@@ -59,6 +63,7 @@ void App::configure() {
     }
 
     machine->set_master_slow_mode(slow_mode);
+    debugger->set_editor_mode(editor_mode);
 
     if (args.size() > 1) {
         std::cerr << "Error: too many arguments" << std::endl;
