@@ -1,23 +1,8 @@
 #include "symbols.h"
 #include <vector>
 static const std::vector<Symbol> const_symbols = {
-    { "ERR_0_OK", -1, "rom/zx81_edition3.asm", 352 },
-    { "ERR_1_NEXT_WO_FOR", 0, "rom/zx81_edition3.asm", 357 },
     { "START", 0, "rom/zx81_edition3.asm", 437 },
-    { "ERR_2_UNDEF_VAR", 1, "rom/zx81_edition3.asm", 368 },
-    { "ERR_3_SUBSCRIPT_RANGE", 2, "rom/zx81_edition3.asm", 373 },
-    { "ERR_4_NO_ROOM", 3, "rom/zx81_edition3.asm", 379 },
-    { "ERR_4_SCREEN_FULL", 4, "rom/zx81_edition3.asm", 383 },
-    { "ERR_6_OVERFLOW", 5, "rom/zx81_edition3.asm", 387 },
-    { "ERR_7_RET_WO_GOSUB", 6, "rom/zx81_edition3.asm", 390 },
-    { "ERR_8_EOF", 7, "rom/zx81_edition3.asm", 393 },
     { "ERROR_1", 8, "rom/zx81_edition3.asm", 456 },
-    { "ERR_9_STOP", 8, "rom/zx81_edition3.asm", 397 },
-    { "ERR_A_INVALID_ARG", 9, "rom/zx81_edition3.asm", 400 },
-    { "ERR_B_INT_OVERFLOW", 0x000a, "rom/zx81_edition3.asm", 406 },
-    { "ERR_C_NONSENSE", 0x000b, "rom/zx81_edition3.asm", 410 },
-    { "ERR_D_BREAK", 0x000c, "rom/zx81_edition3.asm", 414 },
-    { "ERR_F_PROG_NAME", 0x000e, "rom/zx81_edition3.asm", 419 },
     { "PRINT_A", 0x0010, "rom/zx81_edition3.asm", 472 },
     { "GET_CHAR", 0x0018, "rom/zx81_edition3.asm", 490 },
     { "TEST_SP", 0x001c, "rom/zx81_edition3.asm", 494 },

@@ -11,6 +11,7 @@ my @consts;
 my @lines = path($input_file)->lines( { chomp => 1 } );
 for (@lines) {
     next if /^(__head|__size|__tail)/;
+    next if /^ERR_\w_/;                  # skip error constants
 
     my @fields = split /\s*[=;,]\s*/, $_;
     die "invalid line from map file: $_" if @fields < 8;

@@ -8,4 +8,3 @@ TODO
   to the source being debugged; get the location
   information from the .lis file.
 - read symbols from map file
-- remove ERR_nn_XXX symbols from the ROM map file 
