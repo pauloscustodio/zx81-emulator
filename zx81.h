@@ -111,6 +111,7 @@ static inline constexpr int  SAVE1     = 0x02fc;
 static inline constexpr int  NEXT_PROG = 0x0347;
 static inline constexpr int  DISPLAY_6 = 0x04c1;
 static inline constexpr int  SLOW_DISP = 0x04cf;
+static inline constexpr int  SLOW_DISP1 = 0x04d3;   // after a key is pressed
 static inline constexpr int  FAST      = 0x0f23;
 static inline constexpr int  SLOW      = 0x0f2b;
 

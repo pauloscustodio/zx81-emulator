@@ -157,8 +157,10 @@ public:
     void key_down(kbd_state_t key);
     void key_up(kbd_state_t key);
     byte_t in(word_t addr);
-    void scan(Milliseconds elapsed_ms, Memory& memory);
+    void scan(Memory& memory);
     void paste(const std::string& text);
+    void set_basic_idle();
+    void reset_basic_idle();
 
 private:
     kbd_state_t key_state;          // current state of the keys
@@ -171,10 +173,10 @@ private:
     enum { Q_IDLE, Q_DOWN, Q_UP };  // queue state machine states
     int q_state = Q_IDLE;           // current queue state
     kbd_state_t last_key_pushed = 0;// last key pushed via queue
-    Milliseconds q_event_ms = 0;        // time of last queue event
+    bool basic_idle = false;      // true when BASIC is waiting for a key press
 
     bool queue_busy() const;
-    void queue_tick(Milliseconds elapsed_ms);
+    void queue_tick();
     word_t rom_keyboard_scan();
     void push_one_token(const char** p, int& mode, bool allow_keywords);
 };

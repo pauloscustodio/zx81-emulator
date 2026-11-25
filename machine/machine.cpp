@@ -59,13 +59,20 @@ Machine::Machine(Clock& clock)
     basic_slow_mode = master_slow_mode;
 
     // detect when the ROM finished initialization
-    auto init_finished_trap = [this](Cpu & cpu) {
+    traps.add(DISPLAY_6, [this](Cpu & cpu) {
         if (!init_finished) {
             init_finished = true;
         }
-    };
-    traps.add(DISPLAY_6, init_finished_trap);
-    traps.add(SLOW_DISP, init_finished_trap);
+        keyboard.set_basic_idle();
+    });
+
+    // detect when BASIC is waiting for a key press
+    traps.add(SLOW_DISP, [this](Cpu & cpu) {
+        keyboard.set_basic_idle();
+    });
+    traps.add(SLOW_DISP1, [this](Cpu & cpu) {
+        keyboard.reset_basic_idle();
+    });
 
     // detect PAUSE routine
     traps.add(PAUSE1, [this](Cpu & cpu) {
@@ -197,7 +204,7 @@ void Machine::run_frame() {
 
     // scan keyboard after computer initialized
     if (init_finished) {
-        keyboard.scan(clock.get_elapsed_ms(), memory);
+        keyboard.scan(memory);
     }
 
     // count one frame

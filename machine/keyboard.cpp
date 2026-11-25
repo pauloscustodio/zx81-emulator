@@ -112,7 +112,7 @@ byte_t Keyboard::in(word_t addr) {
 }
 
 // called once per frame to update the keyboard queue and LAST_K
-void Keyboard::scan(Milliseconds elapsed_ms, Memory& memory) {
+void Keyboard::scan(Memory& memory) {
     // only scan the keyboard if there are no pending events in the queue
     // avoid key losses during paste, as a 0xffff LAST_K is written over the
     // LAST_K from the pushed key
@@ -122,7 +122,7 @@ void Keyboard::scan(Milliseconds elapsed_ms, Memory& memory) {
     }
     else {
         // push the next key_down/key_up from the queue
-        queue_tick(elapsed_ms);
+        queue_tick();
     }
 }
 
@@ -130,14 +130,9 @@ bool Keyboard::queue_busy() const {
     return !queue.empty() || q_state != Q_IDLE;
 }
 
-void Keyboard::queue_tick(Milliseconds elapsed_ms) {
-    if (elapsed_ms - q_event_ms < QueueTimeMs) {
-        return; // not enough time has passed
-    }
-    q_event_ms = elapsed_ms;
-
+void Keyboard::queue_tick() {
     if (q_state == Q_IDLE) {
-        if (!queue.empty()) {
+        if (basic_idle && !queue.empty()) {
             last_key_pushed = queue.front();
             queue.pop();
             key_down(last_key_pushed);
@@ -298,4 +293,12 @@ void Keyboard::paste(const std::string& text) {
     if (mode == GR_MODE) {
         queue.push(K_GRAPHICS); // return to KL_MODE after pasting
     }
+}
+
+void Keyboard::set_basic_idle() {
+    basic_idle = true;
+}
+
+void Keyboard::reset_basic_idle() {
+    basic_idle = false;
 }
