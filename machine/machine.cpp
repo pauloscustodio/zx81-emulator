@@ -187,21 +187,26 @@ void Machine::run_frame() {
         cpu.step();
     }
 
-    // decrement FRAMES
-    if (get_cpu().get_state() == Cpu::State::Running) {
-        word_t frames = memory.read16(FRAMES);
-        frames--;
-        frames |= 0x8000; // bit 15 must be set
-        memory.write16(FRAMES, frames);
-    }
+    Milliseconds now_ms = clock.get_elapsed_ms();
+    if (now_ms > last_frame_ms + 1000 / RefreshHz) {
+        last_frame_ms = now_ms;
 
-    // scan keyboard after computer initialized
-    if (init_finished) {
-        keyboard.scan(clock.get_elapsed_ms(), memory);
-    }
+        // decrement FRAMES
+        if (get_cpu().get_state() == Cpu::State::Running) {
+            word_t frames = memory.read16(FRAMES);
+            frames--;
+            frames |= 0x8000; // bit 15 must be set
+            memory.write16(FRAMES, frames);
+        }
 
-    // count one frame
-    frames_count++;
+        // scan keyboard after computer initialized
+        if (init_finished) {
+            keyboard.scan(clock.get_elapsed_ms(), memory);
+        }
+
+        // count one frame
+        frames_count++;
+    }
 }
 
 Milliseconds Machine::frame_budget_ms() const {

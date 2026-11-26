@@ -69,6 +69,7 @@ private:
     Cpu cpu;
     Files files;
     Frames frames_count = 0;
+    Milliseconds last_frame_ms = 0;
 
     // slow mode from -s option and from SLOW/FAST commands
     bool master_slow_mode = false;
