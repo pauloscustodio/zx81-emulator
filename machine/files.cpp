@@ -22,6 +22,14 @@ Files::Files(Cpu& cpu, Memory& memory)
 }
 
 void Files::save_p(const std::string& filename) const {
+    save_data(filename, SAVE_ADDR, memory.read16(E_LINE) - SAVE_ADDR);
+}
+
+void Files::load_p(const std::string& filename) {
+    load_data(filename, SAVE_ADDR);
+}
+
+void Files::save_data(const std::string& filename, int addr, int size) const {
     std::ofstream ofs(filename, std::ios::binary);
     if (!ofs) {
         std::cerr << "Error: Unable to open file for writing: "
@@ -29,13 +37,13 @@ void Files::save_p(const std::string& filename) const {
         return;
     }
 
-    size_t start_addr = SAVE_ADDR;
-    size_t end_addr = memory.read16(E_LINE);
+    size_t start_addr = addr;
+    size_t end_addr = addr + size;
     ofs.write(reinterpret_cast<const char*>(memory.get_mem() + start_addr),
               end_addr - start_addr);
 }
 
-void Files::load_p(const std::string& filename) {
+void Files::load_data(const std::string& filename, int addr) {
     std::ifstream ifs(filename, std::ios::binary);
     if (!ifs) {
         std::cerr << "Error: Unable to open file for reading: "
@@ -43,8 +51,8 @@ void Files::load_p(const std::string& filename) {
         return;
     }
 
-    size_t max_size = MemSize - SAVE_ADDR;
-    ifs.read(reinterpret_cast<char*>(memory.get_mem() + SAVE_ADDR), max_size);
+    size_t max_size = MemSize - addr;
+    ifs.read(reinterpret_cast<char*>(memory.get_mem() + addr), max_size);
 }
 
 void Files::save_dump(const std::string& filename) const {
@@ -85,11 +93,18 @@ void Files::load_dump(const std::string& filename) {
 void Files::save_hook(Cpu& cpu) {
     // collect file name
     Registers regs = cpu.get_registers();
-    word_t addr = regs.hl;  // address of the program to save
-    std::string filename = read_filename(addr);
+    word_t filename_addr = regs.hl;  // address of the program to save
+    int data_addr = -1, data_size = -1;
+    std::string filename = read_filename(filename_addr, data_addr, data_size);
 
-    // save the program to a .p file
-    save_p(filename);
+    if (data_addr >= 0 && data_size >= 0) {
+        // SAVE "FILE;start,length"
+        save_data(filename, data_addr, data_size);
+    }
+    else {
+        // SAVE "FILE" - save the program to a .p file
+        save_p(filename);
+    }
 
     // jump to RET
     cpu.exec_ret();
@@ -97,20 +112,26 @@ void Files::save_hook(Cpu& cpu) {
 
 void Files::load_hook(Cpu& cpu) {
     Registers regs = cpu.get_registers();
-    int addr = regs.de;
+    int filename_addr = regs.de;
 
-    bool is_load_qq = (addr & 0x8000) != 0;     // LOAD ""
+    bool is_load_qq = (filename_addr & 0x8000) != 0;     // LOAD ""
     if (is_load_qq) {
         // ignore LOAD ""
     }
     else {
         // LOAD "FILE"
-        std::string filename = read_filename(addr);
+        int data_addr = -1, data_size = -1;
+        std::string filename = read_filename(filename_addr, data_addr, data_size);
         std::string found_filename = find_file_case(filename);
         if (found_filename.empty()) {
             std::cerr << "Error: File not found: " << filename << std::endl;
         }
+        else if (data_addr >= 0) {
+            // LOAD "FILE;addr"
+            load_data(filename, data_addr);
+        }
         else {
+            // LOAD "FILE"
             load_p(found_filename);
         }
     }
@@ -119,12 +140,12 @@ void Files::load_hook(Cpu& cpu) {
     cpu.exec_ret();
 }
 
-std::string Files::read_string(int addr) const {
+std::string Files::read_string(int filename_addr) const {
     std::string str;
 
     // convert to string using zx81chars
     for (int i = 0; ; i++) {
-        byte_t b = memory.read8(addr + i);
+        byte_t b = memory.read8(filename_addr + i);
         str += zx81chars[b & 0x7f];
         if ((b & 0x80) != 0) {
             break;
@@ -134,9 +155,32 @@ std::string Files::read_string(int addr) const {
     return str;
 }
 
-std::string Files::read_filename(int addr) const {
-    std::string filename = read_string(addr);
-    filename = str_tolower(filename);
-    filename += ".p";
-    return filename;
+std::string Files::read_filename(int filename_addr, int& data_addr,
+                                 int& size) const {
+    data_addr = -1;
+    size = -1;
+    std::string arg = str_tolower(read_string(filename_addr));
+    auto semicolon_pos = arg.find(';');
+    if (semicolon_pos == std::string::npos) {
+        std::string filename = arg + ".p";
+        return filename;
+    }
+    else {
+        // extract filename
+        std::string filename = arg.substr(0, semicolon_pos);
+        arg = arg.substr(semicolon_pos + 1);
+        auto comma_pos = arg.find(",");
+        if (comma_pos == std::string::npos) {
+            // extract only data_addr
+            data_addr = static_cast<int>(strtol(arg.c_str(), NULL, 10));
+            return filename;
+        }
+        else {
+            // extract data_addr and size
+            data_addr = static_cast<int>(strtol(arg.substr(0, comma_pos).c_str(), NULL,
+                                                10));
+            size = static_cast<int>(strtol(arg.substr(comma_pos + 1).c_str(), NULL, 10));
+            return filename;
+        }
+    }
 }

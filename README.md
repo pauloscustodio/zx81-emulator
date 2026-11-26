@@ -96,6 +96,8 @@ Inside the emulated ZX81 environment:
 - save/restore snapshots using `F6` and `F7`
 - `SAVE "X"` writes a `.p` file
 - `LOAD "X"` reads a `.p` file
+- `SAVE "X.DAT;16514,16"` writes a `x.dat` file with 16 bytes from 16514
+- `LOAD "X.DAT;16514` reads a `x.dat` file to address 16514
 - `PAUSE` supports timed frame delays
 - `LPRINT`, `LLIST`, and `COPY` write output to `zx81.txt`
 - optional slow-mode emulation with `-s`
