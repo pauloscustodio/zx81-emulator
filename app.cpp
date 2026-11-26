@@ -82,6 +82,9 @@ void App::configure() {
             exit_usage();
         }
         else if (str_ends_with(filename, ".p")) {
+            // replace backslashes by slashes
+            filename = str_replace_all(filename, "\\", "/");
+
             // push LOAD "filename" to keyboard queue
             std::string command = "LOAD \"" +
                                   filename.substr(0, filename.size() - 2) + "\"\n";
