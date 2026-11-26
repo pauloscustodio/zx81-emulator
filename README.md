@@ -104,7 +104,7 @@ This emulator focuses on the default text-based ZX81 screen and quick program ex
 
 ## Technology
 
-C++17, SDL3, SDL_Image
+C++20, SDL3, SDL_Image
 
 ## Further work
 
