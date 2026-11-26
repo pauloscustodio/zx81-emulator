@@ -56,6 +56,8 @@ void EditorClient::open_file(const std::string& filename, int line_num) const {
         // Visual Studio Code command to open a file at a specific line number
         std::string command = "code --goto \"" + filename + ":" + std::to_string(
                                   line_num) + "\"";
-        std::system(command.c_str());
+        if (std::system(command.c_str()) != 0) {
+            // Ignore the error as code may not be available
+        }
     }
 }
