@@ -139,7 +139,7 @@ debugger/editor_locs.h: rom/zx81_edition3.lis tools/make_editor_locs.pl Makefile
 	$(PERL) tools/make_editor_locs.pl $< editor_locs > $@
 	dos2unix $@
 
-rom/zx81_edition3.map rom/zx81_edition3.lis &: rom/zx81_edition3.asm Makefile
+rom/zx81_edition3.map rom/zx81_edition3.lis: rom/zx81_edition3.asm Makefile
 ifeq ($(DEVELOPER),1)
 	z88dk-z80asm -b -l -m $<
 	diff rom/zx81_edition3.rom rom/zx81_edition3.bin
