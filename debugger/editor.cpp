@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 
 EditorClient::EditorClient() {
     for (const auto& entry : editor_locs) {
@@ -57,7 +59,7 @@ void EditorClient::open_file(const std::string& filename, int line_num) const {
         std::string command = "code --goto \"" + filename + ":" + std::to_string(
                                   line_num) + "\"";
         if (std::system(command.c_str()) != 0) {
-            // Ignore the error as code may not be available
+            std::cerr << command << ": failed" << std::endl;
         }
     }
 }

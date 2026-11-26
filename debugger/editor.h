@@ -17,6 +17,7 @@ public:
 
     void add(word_t addr, const std::string& filename, int line_num);
     void navigate_to(word_t addr) const;
+    void read_map_file(const std::string& filename);
 
 private:
     struct Entry {

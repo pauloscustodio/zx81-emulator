@@ -128,7 +128,7 @@ $(BUILD_DIR)/dasm$(EXESUFFIX): $(DASM_SRCS)
 # developer only initialization
 # depends on z88dk-z80asm
 #------------------------------------------------------------------------------
-init: debugger/consts.h debugger/editor_locs.h
+init: debugger/consts.h debugger/editor_locs.h t/input/testmap.p t/input/testmap.map
 	$(MAKE)
 
 debugger/consts.h: rom/zx81_edition3.map tools/make_consts.pl Makefile
@@ -143,6 +143,11 @@ rom/zx81_edition3.map rom/zx81_edition3.lis: rom/zx81_edition3.asm Makefile
 ifeq ($(DEVELOPER),1)
 	z88dk-z80asm -b -l -m $<
 	diff rom/zx81_edition3.rom rom/zx81_edition3.bin
+endif
+
+t/input/testmap.p t/input/testmap.map: t/input/testmap.bas Makefile
+ifeq ($(DEVELOPER),1)
+	z88dk-zx81bas t/input/testmap.bas
 endif
 
 #------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ This project is released under the GNU General Public License, version 2 or late
 ## Command-line usage
 
 ```bash
-zx81 [-d port] [-h] [-s] [file.p|file.dump|file.bas]
+zx81 [-d port] [-e] [-h] [-m file.map] [-s] [file.p|file.dump|file.bas]
 ```
 
 Options:
@@ -52,8 +52,13 @@ Options:
     [w]atch $xx|dd|NAME - Add watchpoint
     [m]em   $xx|dd|NAME - Show memory contents
 ```
+- `-e`: during debuging, opens Visual Studio code on the source line 
+  number of the current statement, if source information was passed 
+  with `-m`.
 - `-h`: run in headless mode, i.e. the emulator runs but the main window
   is not created. Usefull for batch execution and CI runs.
+- `-m file.map`: load the symbols from the given map file. The symbols
+  can be used in the debugger commands and are shown in disassembly.
 - `-s`: run at normal ZX81 speed when the emulator is not in FAST mode.
 - `file.p`: load a BASIC program file on startup, as if `LOAD "file"` had been typed.
 - `file.dump`: restore emulator state from a saved dump.

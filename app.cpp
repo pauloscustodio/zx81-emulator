@@ -30,7 +30,7 @@ App::App() {
 
 void App::parse_cmd_line(int argc, char* argv[]) {
     while (true) {
-        int c = mygetopt(argc, argv, "d:ehs");
+        int c = mygetopt(argc, argv, "d:ehm:s");
         if (c == -1) {
             break;
         }
@@ -43,6 +43,9 @@ void App::parse_cmd_line(int argc, char* argv[]) {
             break;
         case 'h':
             headless_mode = true;
+            break;
+        case 'm':
+            map_filename = optarg;
             break;
         case 's':
             slow_mode = true;
@@ -64,6 +67,9 @@ void App::configure() {
 
     machine->set_master_slow_mode(slow_mode);
     debugger->set_editor_mode(editor_mode);
+    if (!map_filename.empty()) {
+        load_map_symbols(map_filename);
+    }
 
     if (args.size() > 1) {
         std::cerr << "Error: too many arguments" << std::endl;
@@ -180,11 +186,121 @@ void App::throttle(Milliseconds start) {
 }
 
 void App::exit_usage() {
-    std::cerr << "Usage: zx81 [-d port] [-h] [-s]" << std::endl;
+    std::cerr <<
+              "Usage: zx81 [-d port] [-e] [-h] [-m file.map] [-s] [file.p|file.dump|file.bas]"
+              << std::endl;
     std::cerr << "Options:" << std::endl;
     std::cerr << "  -d <port>     Start debugger listening on the specified port"
               << std::endl;
+    std::cerr << "  -e            Open editor on source line" << std::endl;
     std::cerr << "  -h            Headless mode" << std::endl;
+    std::cerr << "  -m file.map   Load symbols and source locations" << std::endl;
     std::cerr << "  -s            Slow mode" << std::endl;
     exit(EXIT_FAILURE);
+}
+
+std::vector<App::MapEntry> App::read_map_file(const std::string& filename) {
+    std::vector<MapEntry> entries;
+
+    std::ifstream ifs(filename);
+    if (!ifs.is_open()) {
+        std::cerr << "open file " << filename << " failed" << std::endl;
+    }
+
+    std::string text;
+    while (std::getline(ifs, text)) {
+        // get symbol name
+        const char* p = text.c_str();
+        if (!isalpha(*p) && *p != '_') {
+            continue;
+        }
+        const char* p0 = p;
+        while (isalnum(*p) || *p == '_') {
+            p++;
+        }
+        std::string name = std::string(p0, p);
+
+        // skip to address
+        while (isspace(*p)) {
+            p++;
+        }
+        if (*p == '=') {
+            p++;
+        }
+        else {
+            continue;    // ignore line
+        }
+        while (isspace(*p)) {
+            p++;
+        }
+        if (*p == '$') {
+            p++;
+        }
+        else {
+            continue;    // ignore line
+        }
+
+        // get address
+        p0 = p;
+        while (isxdigit(*p)) {
+            p++;
+        }
+        if (p == p0) {
+            continue;    // ignore line
+        }
+        int addr = static_cast<int>(strtol(p0, NULL, 16));
+
+        // skip to filename
+        bool matched = true;
+        for (int commas = 0; commas < 5; commas++) {
+            while (*p && *p != ',') {
+                p++;
+            }
+            if (*p != ',') {
+                matched = false;
+                break;
+            }
+            p++;    // skip comma
+        }
+        if (!matched) {
+            continue;    // ignore line
+        }
+        while (isspace(*p)) {
+            p++;
+        }
+
+        // get filename
+        p0 = p;
+        while (isprint(*p) && *p != ':') {
+            p++;
+        }
+        if (*p != ':') {
+            continue;    // ignore line
+        }
+        std::string filename = std::string(p0, p);
+        p++;    // skip colon
+
+        // get line number
+        p0 = p;
+        while (isdigit(*p)) {
+            p++;
+        }
+        if (p == p0) {
+            continue;    // ignore line
+        }
+        int line_num = static_cast<int>(strtol(p0, NULL, 10));
+
+        MapEntry entry{name, addr, filename, line_num};
+        entries.push_back(std::move(entry));
+    }
+
+    return entries;
+}
+
+void App::load_map_symbols(const std::string& filename) {
+    std::vector<MapEntry> entries = read_map_file(filename);
+    for (auto& entry : entries) {
+        symtab->add(entry.name, entry.value, entry.filename, entry.line_num);
+        editor_client->add(entry.value, entry.filename, entry.line_num);
+    }
 }

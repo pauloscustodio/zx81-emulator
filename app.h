@@ -47,6 +47,7 @@ private:
     bool slow_mode = false;
     bool headless_mode = false;
     bool editor_mode = false;
+    std::string map_filename;
     std::vector<std::string> args;
 
     void run_headless();
@@ -54,4 +55,14 @@ private:
     void run_frame();
     void throttle(Milliseconds start);
     static void exit_usage();
+
+    // read z88dk-z80asm map file
+    struct MapEntry {
+        std::string name;
+        int value;
+        std::string filename;
+        int line_num;
+    };
+    std::vector<MapEntry> read_map_file(const std::string& filename);
+    void load_map_symbols(const std::string& filename);
 };
