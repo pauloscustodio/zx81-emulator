@@ -25,5 +25,5 @@ public:
 private:
     Cycles cycles = 0;
 
-    std::chrono::steady_clock::time_point start;
+    std::chrono::system_clock::time_point start;
 };

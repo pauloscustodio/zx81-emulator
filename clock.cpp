@@ -8,7 +8,7 @@
 #include <chrono>
 
 Clock::Clock()
-    : start(std::chrono::steady_clock::now()) {
+    : start(std::chrono::system_clock::now()) {
 }
 
 Cycles Clock::get_cycles() const {
@@ -20,7 +20,7 @@ void Clock::add_cycles(Cycles delta) {
 }
 
 Milliseconds Clock::get_elapsed_ms() const {
-    auto elapsed = std::chrono::steady_clock::now() - start;
+    auto elapsed = std::chrono::system_clock::now() - start;
 
     return std::chrono::duration_cast <
            std::chrono::milliseconds > (elapsed).count();
